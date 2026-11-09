@@ -60,7 +60,7 @@
       <span class="rubric">Мини-приложение · дизайн-система · #1</span>
       <h1>WDB Club</h1>
       <p class="dsp-p">Светлая система в духе сайта клуба и Mercedes-Benz Community: узкая антиква в заголовках и цифрах, гротеск сайта в тексте, тонкие линии вместо плашек, жёлтый клуба как сигнал, а не фон. Всё на этой странице отрисовано теми же файлами, что и экраны: <code>ds/fonts.css</code>, <code>ds/tokens.css</code>, <code>ds/components.css</code>, <code>ds/icons.svg</code>.</p>
-      <p class="dsp-p">«Где используется» — номера экранов из макетов первого этапа: <a class="link" href="mockups/stage-1.html">mockups/stage-1.html</a> (S1–S15).</p>
+      <p class="dsp-p">«Где используется» — номера экранов из макетов первого этапа: <a class="link" href="mockups/stage-1.html">mockups/stage-1.html</a> (S1–S16).</p>
     </div>
     <span class="logo-tile" aria-label="WDB Club"></span>
   </div>
@@ -75,7 +75,7 @@
 
   <!-- ====================== ЛОГОТИП ====================== -->
   <div class="dsp-sec"><span class="t-num">01</span><h2>Логотип</h2></div>
-  <p class="dsp-note">Логотип клуба — с сайта wdbclub.com (растр на жёлтой подложке, <code>ds/img/logo-wdb-club.png</code>). В приложении живёт плиткой-«лепестком» 40 px в правом углу шапки (все экраны S1–S15). Векторного файла пока нет — см. вопрос 1.</p>
+  <p class="dsp-note">Логотип клуба — с сайта wdbclub.com (растр на жёлтой подложке, <code>ds/img/logo-wdb-club.png</code>). В приложении живёт плиткой-«лепестком» 40 px в правом углу шапки (все экраны S1–S16). Векторного файла пока нет — см. вопрос 1.</p>
   <div class="dsp-grid"><div class="dsp-item"><div class="dsp-stage"><div class="appbar" style="padding:0"><button class="appbar__back"><svg class="icon"><use href="ds/icons.svg#i-left"/></svg>Мероприятия</button><span class="logo-tile"></span></div></div><div class="dsp-cap"><b>Шапка</b><code>.appbar</code>, <code>.appbar__back</code>, <code>.logo-tile</code>. Все экраны; на корневых экранах (S1, S2, S12, S13) без кнопки назад. В Telegram назад — системной кнопкой.</div></div></div>
 
   <!-- ====================== ЦВЕТ ====================== -->
@@ -140,7 +140,7 @@ const row = (t, cells) => $(t).insertAdjacentHTML('beforeend', `<tr>${cells.map(
 
 // ---------- цвет ----------
 [
-  ['--bg', '#FAFAFA', 'Фон экрана (сайт). Все экраны S1–S15; обводка миниатюр участников S3, S10; зазор у аватара S12'],
+  ['--bg', '#FAFAFA', 'Фон экрана (сайт). Все экраны S1–S16; обводка миниатюр участников S3, S10; зазор у аватара S12'],
   ['--surface', '#FFFFFF', 'Таб-бар — все экраны; карточка машины S14; превью машин S12; шторка S4, S5; номерной знак S9, S14'],
   ['--ink', '#000000', 'Текст; линейка над фактами, списками и календарём S1, S3, S9; активная вкладка; выбранный день S2; тег «Записаны» S1, S6, S12; шкала мест S3; фокус поля и включённый переключатель S15; радиокнопка S4'],
   ['--ink-2', 'rgba(0,0,0,.5)', 'Второстепенный текст (сайт): рубрики, подписи, лид, «из 40 мест», неактивная вкладка — все экраны'],
