@@ -26,12 +26,14 @@ before(async () => {
 });
 after(async () => { await browser?.close(); server?.close(); });
 
-async function open() {
+// По умолчанию — тестовый набор мероприятий (tests/fixtures/data.js, #6); real: true — данные приложения.
+async function open({ real = false } = {}) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.route(/telegram\.org/, (r) => r.fulfill({ body: '' }));
+  if (!real) await page.route(/\/app\/data\.js$/, async (r) => r.fulfill({ contentType: 'text/javascript', body: await readFile(path.join(root, 'tests/fixtures/data.js'), 'utf8') }));
   await page.goto(base + 'index.html?today=2026-11-09');
   await page.evaluate(() => document.fonts.ready);
   return { page, ctx, errors };
@@ -151,6 +153,28 @@ test('календарь: выбор дня и сброс; новичок в п�
   await page.getByText('без машины на мероприятия не записаться').waitFor();
   await page.getByText('Пока пусто').waitFor();
   await shot(page, '6-01-newcomer');
+  assert.deepEqual(errors, []);
+  await ctx.close();
+});
+
+test('данные приложения: одно мероприятие «Вояж» 13 ноября — запись и участники (#6)', async () => {
+  const { page, ctx, errors } = await open({ real: true });
+  assert.equal(await page.locator('.ev-row').count(), 1);
+  await page.locator('.cal__d.has-ev', { hasText: '13' }).waitFor();
+  await page.locator('.ev-row', { hasText: 'Вояж' }).click();
+  await page.getByText('пятница, 13 ноября').waitFor();
+  await page.getByText('сбор в 9:30').waitFor();
+  assert.match(await page.locator('.seats').innerText(), /12\s+из 30 мест/);
+  assert.equal(await page.locator('.fact', { hasText: 'Партнёр' }).count(), 0, 'без партнёра');
+  await shot(page, '6v-01-voyage');
+  await page.evaluate(() => localStorage.setItem('wdb-stage1', JSON.stringify({ cars: [{ id: 'a', brand: 'Mercedes-Benz', model: 'E 55 AMG', year: 2001, color: 'серебристый', plate: '', showPlate: false, photoData: '' }], regs: {}, lastCarId: null })));
+  await page.reload();
+  await page.locator('.ev-row', { hasText: 'Вояж' }).click();
+  await page.getByRole('button', { name: 'Записаться' }).click();
+  await page.locator('.btn--done', { hasText: 'Вы записаны · E 55 AMG' }).waitFor();
+  assert.match(await page.locator('.seats').innerText(), /13\s+из 30 мест/);
+  await page.getByRole('button', { name: 'Все участники' }).click();
+  assert.equal(await page.locator('.person').count(), 13);
   assert.deepEqual(errors, []);
   await ctx.close();
 });
