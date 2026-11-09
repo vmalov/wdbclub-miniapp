@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WDB Club — сценарии первого этапа</title>
+<link rel="stylesheet" href="../ds/fonts.css">
+<link rel="stylesheet" href="../ds/tokens.css">
+<link rel="stylesheet" href="../ds/components.css">
+<style>
+  /* Разметка артборда сценариев (префикс mk-). В продукт не входит. Экраны — из screens.js. */
+  body { margin: 0; background: var(--sand); font-family: var(--sans); color: var(--ink); }
+  .mk { padding: 32px 0 80px; }
+  .mk-head { max-width: 980px; padding: 0 24px; }
+  .mk-h1 { font: 400 52px/1 var(--serif); margin: 0 0 12px; }
+  .mk-lead { margin: 0 0 8px; color: var(--ink-2); max-width: 820px; }
+  .mk-flow { margin: 56px 0 0; }
+  .mk-flow-head { display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: baseline; padding: 0 24px; max-width: 1100px; }
+  .mk-flow-head .t-num { font-size: 48px; }
+  .mk-flow-head h2 { font: 400 34px/1.05 var(--serif); margin: 0 0 6px; }
+  .mk-flow-head p { margin: 0; color: var(--ink-2); max-width: 820px; }
+  .mk-track { display: flex; align-items: flex-start; gap: 0; overflow-x: auto; padding: 24px 24px 12px; }
+  .mk-step { flex: none; width: 300px; }
+  .mk-step-cap { display: flex; gap: 8px; align-items: baseline; margin: 0 0 10px; font-size: 13px; color: var(--ink-2); min-height: 34px; }
+  .mk-step-cap b { color: var(--ink); font-weight: 600; white-space: nowrap; }
+  .mk-zoom { zoom: .77; }
+  .mk-arrow { flex: none; width: 128px; align-self: stretch; display: flex; flex-direction: column; align-items: center; padding-top: 260px; gap: 10px; }
+  .mk-arrow span { font-size: 13px; text-align: center; line-height: 1.3; padding: 0 8px; }
+  .mk-arrow i { display: block; width: 92px; height: 1px; background: var(--ink); position: relative; }
+  .mk-arrow i::after { content: ""; position: absolute; right: 0; top: -4px; border: 4px solid transparent; border-left: 7px solid var(--ink); border-right: 0; }
+  .mk-end { flex: none; width: 260px; align-self: center; padding: 0 0 0 28px; color: var(--ink-2); font-size: 14px; }
+  .mk-end b { display: block; font: 400 24px/1.1 var(--serif); color: var(--ink); margin-bottom: 8px; }
+  .phone { position: relative; width: 390px; min-height: 844px; border-radius: 34px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 30px 60px -30px rgba(0,0,0,.5); }
+  .phone.is-fixed { height: 844px; }
+  .phone > .grow { flex: 1; }
+  /* место нажатия */
+  .mk-tap { outline: 3px solid var(--acc); outline-offset: 4px; box-shadow: 0 0 0 10px var(--acc-glow) !important; position: relative; z-index: 2; }
+</style>
+</head>
+<body>
+<div class="mk">
+  <div class="mk-head">
+    <h1 class="mk-h1">Сценарии первого этапа</h1>
+    <p class="mk-lead">Экраны по шагам: что видит участник и куда нажимает. Жёлтое кольцо — место нажатия, на стрелке — действие. Номера S… совпадают с общим списком экранов (stage-1.html) и подписями на странице дизайн-системы. Ленты сценариев листаются вбок.</p>
+  </div>
+  <div id="flows"></div>
+</div>
+<script src="screens.js"></script>
+<script>
+const byId = Object.fromEntries(window.SCREENS.map(([g, id, title, cap, html]) => [id, { title, html }]));
+// [экран, что нажимают (CSS-селектор внутри экрана), подпись действия на стрелке]
+const FLOWS = [
+  ['Первая запись: машины ещё нет', 'Новый участник открывает мини-апп, выбирает мероприятие и записывается. Машины в профиле нет — приложение просит добавить её и сразу записывает. В конце участник видит, что записан, сколько мест занято, и находит запись в профиле.', [
+    ['S1', '.ev-row', 'Открыл мини-апп, тап по мероприятию'],
+    ['S3', '.btn', 'Тап «Записаться»'],
+    ['S5', '.sheet .btn', 'Машины нет — «Добавить машину»'],
+    ['S16', '.btn', 'Заполнил, «Сохранить и записаться»'],
+    ['S6', '.thumbs + .link', 'Записан: тост, статус, места 25 из 40. «Все участники»'],
+    ['S9', null, null],
+  ], 'Участник записан и видит, кто едет. Прогресс мероприятия — шкала «25 из 40 мест» на карточке; запись со статусом появится в профиле, в «Моих записях» (S12).'],
+  ['Запись, когда машин несколько', 'Участник с двумя машинами выбирает, на какой поедет.', [
+    ['S1', '.ev-row', 'Тап по мероприятию'],
+    ['S3', '.btn', 'Тап «Записаться»'],
+    ['S4', '.sheet .btn', 'Выбрал E 55 AMG, «Записаться»'],
+    ['S6', null, null],
+  ], 'Записан на выбранной машине; она видна в кнопке и в списке участников.'],
+  ['Кто едет — до и после записи', 'Не записанный участник видит только миниатюры. После записи открывается полный список с машинами и контактами.', [
+    ['S3', '.thumbs', 'Тап по миниатюрам участников'],
+    ['S10', '.btn', 'Тап «Записаться»'],
+    ['S4', '.sheet .btn', 'Выбрал машину, «Записаться»'],
+    ['S6', '.thumbs + .link', 'Тап «Все участники»'],
+    ['S9', null, null],
+  ], 'Полный список: имя, машина, Telegram; госномер — если владелец разрешил.'],
+  ['Мест нет: лист ожидания', 'Лимит набран — участник встаёт в очередь и видит своё место в ней.', [
+    ['S7', '.btn', 'Тап «Встать в лист ожидания»'],
+    ['S8', null, null],
+  ], 'Участник в очереди, видит своё место. В профиле, в «Моих записях», — статус «Ожидание» (как «Клубный ужин» на S12).'],
+  ['Моя машина', 'Участник открывает свою машину из профиля — так её видят другие участники мероприятия.', [
+    ['S12', '.car-tile', 'Вкладка «Профиль», тап по машине'],
+    ['S14', null, null],
+  ], 'Коллекционная карточка машины. «Изменить» открывает форму с полями машины (как S15/S16).'],
+  ['Новичок добавляет машину из профиля', 'Машин и записей ещё нет — профиль подсказывает начать с машины.', [
+    ['S13', '.car-tile--add', 'Тап «Добавить машину»'],
+    ['S15', null, null],
+  ], 'После «Сохранить» машина появляется в «Моих машинах», и на мероприятия можно записываться.'],
+];
+let html = '';
+FLOWS.forEach(([title, lead, steps, end], fi) => {
+  html += `<section class="mk-flow"><div class="mk-flow-head"><span class="t-num">${fi + 1}</span><div><h2>${title}</h2><p>${lead}</p></div></div><div class="mk-track">`;
+  steps.forEach(([id, tap, action], si) => {
+    html += `<div class="mk-step" data-tap="${tap || ''}"><p class="mk-step-cap"><b>Шаг ${si + 1}</b>${id} · ${byId[id].title}</p><div class="mk-zoom">${byId[id].html}</div></div>`;
+    if (action) html += `<div class="mk-arrow"><span>${action}</span><i></i></div>`;
+  });
+  html += `<div class="mk-end"><b>Итог</b>${end}</div></div></section>`;
+});
+document.getElementById('flows').innerHTML = html;
+document.querySelectorAll('.mk-step').forEach(s => { const sel = s.dataset.tap; if (sel) { const el = s.querySelector(`.phone ${sel}`); if (el) el.classList.add('mk-tap'); } });
+</script>
+</body>
+</html>

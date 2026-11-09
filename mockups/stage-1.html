@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WDB Club — макеты первого этапа</title>
+<link rel="stylesheet" href="../ds/fonts.css">
+<link rel="stylesheet" href="../ds/tokens.css">
+<link rel="stylesheet" href="../ds/components.css">
+<style>
+  /* Разметка страницы макетов (префикс mk-). В продукт не входит. */
+  body { margin: 0; background: var(--sand); font-family: var(--sans); }
+  .mk { max-width: 1720px; margin: 0 auto; padding: 32px 16px 80px; }
+  .mk-h1 { font: 400 44px/1 var(--serif); margin: 0 0 10px; }
+  .mk-lead { max-width: 820px; margin: 0 0 8px; color: var(--ink-2); }
+  .mk-group { font: 400 30px/1 var(--serif); margin: 56px 0 18px; }
+  .mk-row { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; }
+  .mk-cell { width: 390px; max-width: 100%; }
+  .mk-cap { font-size: 13px; color: var(--ink-2); margin: 0 0 10px; min-height: 36px; }
+  .mk-cap b { color: var(--ink); font-weight: 600; margin-right: 6px; }
+  .phone { position: relative; width: 390px; max-width: 100%; min-height: 844px; border-radius: 34px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 30px 60px -30px rgba(0,0,0,.5); }
+  .phone.is-fixed { height: 844px; }
+  .phone > .grow { flex: 1; }
+</style>
+</head>
+<body>
+<div class="mk">
+  <h1 class="mk-h1">Макеты первого этапа</h1>
+  <p class="mk-lead">Регистрация на мероприятие, профиль машины, участники (#2). Экраны собраны только из компонентов дизайн-системы (#1): живая страница — design-system.html. Ширина экрана 390 px, светлая тема. Фото — с сайта клуба, госномера на фото скрыты, данные участников вымышленные.</p>
+  <p class="mk-lead">У каждого экрана номер S1, S2, … — на него ссылаются строки «где используется» на странице дизайн-системы.</p>
+  <div id="out"></div>
+</div>
+
+
+
+<script src="screens.js"></script>
+<script>
+const LIST = window.SCREENS;
+// ---------- вывод ----------
+let html = '', group = '';
+for (const [g, id, title, cap, ph] of LIST) {
+  if (g !== group) { if (group) html += '</div>'; html += `<h2 class="mk-group">${g}</h2><div class="mk-row">`; group = g; }
+  html += `<div class="mk-cell" id="${id}"><p class="mk-cap"><b>${id} · ${title}</b>${cap}</p>${ph}</div>`;
+}
+document.getElementById('out').innerHTML = html + '</div>';
+</script>
+</body>
+</html>
