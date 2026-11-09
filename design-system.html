@@ -4,194 +4,254 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WDB Club — дизайн-система</title>
+<link rel="stylesheet" href="ds/fonts.css">
 <link rel="stylesheet" href="ds/tokens.css">
 <link rel="stylesheet" href="ds/components.css">
 <style>
   /* Разметка самой страницы ДС (префикс dsp-). В продукт не входит. */
-  body { background: var(--bg); }
-  .dsp { max-width: 1100px; margin: 0 auto; padding: 32px var(--gutter) 64px; }
-  .dsp-h1 { font-size: 28px; font-weight: 700; margin: 0 0 6px; }
-  .dsp-lead { color: var(--quiet); margin: 0 0 8px; max-width: 760px; }
-  .dsp-sec { font-size: 20px; font-weight: 700; margin: 44px 0 6px; padding-top: 20px; border-top: 1px solid var(--line); }
-  .dsp-note { color: var(--quiet); font-size: 13px; margin: 0 0 16px; max-width: 760px; }
-  .dsp-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  .dsp-table th { text-align: left; color: var(--quiet); font-weight: 400; font-size: 12px; padding: 0 12px 8px 0; }
-  .dsp-table td { padding: 10px 12px 10px 0; border-top: 1px solid var(--line); vertical-align: top; }
-  .dsp-table code, .dsp code { font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
-  .dsp-sw { width: 44px; height: 32px; border-radius: 8px; border: 1px solid var(--line); }
-  .dsp-use { color: var(--quiet); }
-  .dsp-table td { overflow-wrap: anywhere; }
+  body { margin: 0; background: var(--bg); }
+  .dsp { max-width: 1180px; margin: 0 auto; padding: 40px var(--sp-20) 96px; }
+  .dsp-hero { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; border-bottom: 1px solid var(--ink); padding-bottom: 28px; }
+  .dsp-hero h1 { font: 400 64px/0.95 var(--serif); margin: 12px 0 14px; letter-spacing: -.015em; }
+  .dsp-hero .logo-tile { width: 96px; height: 96px; }
+  .dsp-p { max-width: 760px; color: var(--ink-2); margin: 0 0 8px; }
+  .dsp-principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: 0 24px; margin: 28px 0 0; }
+  .dsp-principles div { border-top: 1px solid var(--hair); padding: 14px 0; }
+  .dsp-principles b { display: block; font: 400 22px/1.1 var(--serif); margin: 6px 0 6px; }
+  .dsp-sec { display: grid; grid-template-columns: 56px 1fr; gap: 16px; align-items: baseline; margin: 72px 0 8px; }
+  .dsp-sec .t-num { font-size: 40px; }
+  .dsp-sec h2 { font: 400 40px/1 var(--serif); margin: 0; }
+  .dsp-note { color: var(--ink-2); margin: 0 0 20px 72px; max-width: 760px; font-size: 15px; }
+  .dsp-table { width: 100%; border-collapse: collapse; font-size: 14px; border-top: 1px solid var(--ink); }
+  .dsp-table th { text-align: left; font: 600 10px/1.2 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); padding: 12px 12px 8px 0; }
+  .dsp-table td { padding: 12px 12px 12px 0; border-top: 1px solid var(--hair); vertical-align: top; overflow-wrap: anywhere; }
+  .dsp-table code { font: 13px/1.3 ui-monospace, Consolas, monospace; }
   .dsp-table td:first-child code { white-space: nowrap; }
-  .dsp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr)); gap: 20px; }
-  @media (max-width: 600px) { .dsp-table th:first-child, .dsp-table td:first-child { width: 1%; } .dsp-sw { width: 28px; } }
-  .dsp-item { border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
-  .dsp-item > .dsp-cap { padding: 12px 14px; border-top: 1px solid var(--line); font-size: 13px; }
-  .dsp-item > .dsp-cap b { display: block; font-size: 14px; margin-bottom: 4px; }
-  .dsp-stage { position: relative; padding: var(--gutter); min-height: 80px; }
-  .dsp-stage.flush { padding: 0; }
-  .dsp-ico { display: inline-flex; flex-direction: column; align-items: center; gap: 6px; width: 92px; font-size: 12px; color: var(--quiet); }
-  .dsp-ico svg { width: 24px; height: 24px; color: var(--ink); }
-  .dsp-ico span.g { font-size: 24px; color: var(--ink); height: 24px; line-height: 24px; }
-  .dsp-list { margin: 0; padding-left: 20px; max-width: 820px; }
-  .dsp-list li { margin-bottom: 8px; }
+  .dsp-use { color: var(--ink-2); }
+  .dsp-sw { width: 48px; height: 36px; border-radius: var(--leaf-s); box-shadow: inset 0 0 0 1px var(--hair); }
+  .dsp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr)); gap: 24px; }
+  .dsp-item { border-top: 1px solid var(--ink); }
+  .dsp-stage { padding: 20px 0; position: relative; }
+  .dsp-cap { font-size: 13px; color: var(--ink-2); border-top: 1px solid var(--hair); padding-top: 10px; }
+  .dsp-cap b { display: block; color: var(--ink); font-size: 15px; margin-bottom: 4px; }
+  .dsp-cap code { font: 12px ui-monospace, Consolas, monospace; color: var(--ink); }
+  .dsp-specimen { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 24px; }
+  .dsp-specimen > div { border-top: 1px solid var(--ink); padding-top: 16px; }
+  .dsp-big { font-size: 96px; line-height: .9; }
+  .dsp-abc { font-size: 22px; line-height: 1.3; margin: 12px 0; overflow-wrap: anywhere; }
+  .dsp-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0 16px; border-top: 1px solid var(--ink); }
+  .dsp-icons div { display: grid; grid-template-columns: 28px 1fr; gap: 6px 10px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--hair); font-size: 13px; }
+  .dsp-icons code { font: 12px ui-monospace, Consolas, monospace; }
+  .dsp-icons small { grid-column: 2; color: var(--ink-2); }
+  .dsp-space { display: flex; align-items: center; gap: 12px; }
+  .dsp-space i { display: block; height: 14px; background: var(--acc); }
+  .dsp-shape { height: 72px; background: var(--ink); }
+  .dsp-list { margin: 0 0 0 72px; padding-left: 20px; max-width: 860px; }
+  .dsp-list li { margin-bottom: 10px; color: var(--ink-2); }
+  .dsp-list li b { color: var(--ink); font-weight: 600; }
+  @media (max-width: 640px) { .dsp-note, .dsp-list { margin-left: 0; } .dsp-hero h1 { font-size: 48px; } .dsp-hero { grid-template-columns: 1fr; } .dsp-big { font-size: 72px; } }
 </style>
 </head>
-<body>
+<body class="app">
 <div class="dsp">
-  <div class="dsp-h1">WDB Club — дизайн-система</div>
-  <p class="dsp-lead">Источник правды — экраны прототипа, которые остаются в первом этапе: «Мероприятия» (календарь), «Карточка мероприятия», «Партнёр», «Профиль», «Настройки профиля». Значения фактические, у каждого элемента подписано, где он используется.</p>
-  <p class="dsp-note">Файлы: <code>ds/tokens.css</code> — токены, <code>ds/components.css</code> — компоненты. Приложение (<code>index.html</code>) и эта страница подключают одни и те же файлы. Правила — в <code>docs/design-system.md</code>. Тикет — https://github.com/vmalov/wdbclub-miniapp/issues/1</p>
 
-  <!-- ================= ЦВЕТА ================= -->
-  <div class="dsp-sec">Цвета</div>
-  <table class="dsp-table">
-    <tr><th></th><th>Токен</th><th>Значение</th><th>Где используется</th></tr>
-    <tr><td><div class="dsp-sw" style="background:var(--bg)"></div></td><td><code>--bg</code></td><td><code>#000000</code></td><td class="dsp-use">Все экраны › фон приложения; Карточка мероприятия › обводка аватаров участников; Telegram › цвет шапки и фона мини-аппа</td></tr>
-    <tr><td><div class="dsp-sw" style="background:var(--card)"></div></td><td><code>--card</code></td><td><code>#2F2E2E</code></td><td class="dsp-use">Мероприятия › плитка даты; Карточка мероприятия › обложка, аватары участников, кнопка «Вы записаны ✓ — отменить»; Партнёр › обложка, плитка логотипа; Профиль › аватар; Настройки профиля › фон полей; заглушка фото › начало градиента</td></tr>
-    <tr><td><div class="dsp-sw" style="background:var(--card2)"></div></td><td><code>--card2</code></td><td><code>#1a1a1a</code></td><td class="dsp-use">Мероприятия, Профиль › нажатая карточка мероприятия</td></tr>
-    <tr><td><div class="dsp-sw" style="background:var(--line)"></div></td><td><code>--line</code></td><td><code>#3a3939</code></td><td class="dsp-use">Все экраны › граница шапки и таб-бара; Мероприятия, Профиль › рамка карточки; Партнёр › разделители адреса, телефона, сайта; Настройки профиля › рамка поля</td></tr>
-    <tr><td><div class="dsp-sw" style="background:var(--ink)"></div></td><td><code>--ink</code></td><td><code>#FFFFFF</code></td><td class="dsp-use">Все экраны › основной текст; Карточка мероприятия › текст кнопки «Вы записаны»</td></tr>
-    <tr><td><div class="dsp-sw" style="background:var(--quiet)"></div></td><td><code>--quiet</code></td><td><code>#B3B3B3</code></td><td class="dsp-use">Все экраны › неактивная вкладка, подпись в шапке; Мероприятия › дни недели, месяц в плитке даты, подпись карточки; Карточка мероприятия › описание, «места ещё есть», инициалы; Партнёр › описание, подписи «Адрес», «Телефон», «Сайт»; Профиль › машина под именем, «›» в карточке; Настройки профиля › подпись поля; пустое состояние</td></tr>
-    <tr><td><div class="dsp-sw" style="background:var(--acc)"></div></td><td><code>--acc</code></td><td><code>#FFDA1F</code></td><td class="dsp-use">Все экраны › активная вкладка, кнопки шапки «‹ Назад»/«Изменить», тост; Мероприятия › стрелки месяца, рамка сегодняшнего дня, выбранный день, точка дня с событием; Карточка мероприятия › кнопка «Записаться», ссылка «Добавить в календарь», рамка тега; Партнёр › рамка предложения, ссылки; Профиль › рамка аватара, «Вы записаны»; Настройки профиля › рамка поля в фокусе</td></tr>
-    <tr><td><div class="dsp-sw" style="background:var(--on-acc)"></div></td><td><code>--on-acc</code></td><td><code>#000000</code></td><td class="dsp-use">Карточка мероприятия › текст кнопки «Записаться»; Мероприятия › число выбранного дня; тост › текст</td></tr>
-    <tr><td><div class="dsp-sw" style="background:var(--acc-tint)"></div></td><td><code>--acc-tint</code></td><td><code>rgba(255,218,31,.12)</code></td><td class="dsp-use">Карточка мероприятия › заливка тега типа («Заезд», «Встреча»)</td></tr>
-    <tr><td><div class="dsp-sw" style="background:var(--acc-tint-offer)"></div></td><td><code>--acc-tint-offer</code></td><td><code>rgba(255,218,31,.1)</code></td><td class="dsp-use">Партнёр › заливка блока предложения. Почти совпадает с <code>--acc-tint</code>, см. «Вопросы» п. 1</td></tr>
-    <tr><td><div class="dsp-sw" style="background:var(--ph-to)"></div></td><td><code>--ph-to</code></td><td><code>#1b1b1b</code></td><td class="dsp-use">Карточка мероприятия, Партнёр › заглушка фото обложки, конец градиента</td></tr>
-    <tr><td><div class="dsp-sw" style="background:var(--ph-icon)"></div></td><td><code>--ph-icon</code></td><td><code>#777777</code></td><td class="dsp-use">Карточка мероприятия, Партнёр › значок на заглушке фото (прозрачность 50%)</td></tr>
-  </table>
-
-  <!-- ================= ТИПОГРАФИКА ================= -->
-  <div class="dsp-sec">Текст</div>
-  <p class="dsp-note">Шрифт — системный (<code>--font</code>: SF Pro в iOS, Roboto в Android, Segoe UI в Windows). Базовый текст 15 px, интерлиньяж 1.35. Размеры — как на экранах, без шкалы.</p>
-  <table class="dsp-table">
-    <tr><th>Образец</th><th>Размер / начертание</th><th>Где используется</th></tr>
-    <tr><td><span style="font-size:24px;font-weight:700">Мероприятия</span></td><td>24 / 700</td><td class="dsp-use">Мероприятия › заголовок экрана; Настройки профиля › заголовок (<code>h1</code>)</td></tr>
-    <tr><td><span style="font-size:22px;font-weight:700">Ночной заезд</span></td><td>22 / 700</td><td class="dsp-use">Карточка мероприятия › название; Профиль › имя (<code>.me h1</code>); Профиль › инициалы в аватаре</td></tr>
-    <tr><td><span style="font-size:19px;font-weight:700">14</span></td><td>19 / 700</td><td class="dsp-use">Мероприятия › число в плитке даты</td></tr>
-    <tr><td><span style="font-size:18px;font-weight:700">Винотека «Лоза»</span></td><td>18 / 700</td><td class="dsp-use">Партнёр › название</td></tr>
-    <tr><td><span style="font-size:17px;font-weight:700">Ближайшие</span></td><td>17 / 700</td><td class="dsp-use">Мероприятия › «Ближайшие»; Профиль › «Мои записи» (<code>h2</code>); Партнёр › текст предложения</td></tr>
-    <tr><td><span style="font-size:16px;font-weight:700">Записаться</span></td><td>16 / 700</td><td class="dsp-use">Все экраны › основная кнопка; Мероприятия › месяц и год</td></tr>
-    <tr><td><span style="font-size:15px">Волоколамское ш., 71Ас1</span></td><td>15 / 400</td><td class="dsp-use">Базовый текст: Мероприятия › числа календаря; Партнёр › адрес, телефон, сайт; ссылка «Добавить в календарь»; кнопки шапки; пустое состояние. 15 / 700 — заголовок шапки «WDB Club», 15 / 600 — название в карточке мероприятия</td></tr>
-    <tr><td><span style="font-size:14px" class="muted">Сбор в 21:30, инструктаж…</span></td><td>14 / 400</td><td class="dsp-use">Карточка мероприятия › описание</td></tr>
-    <tr><td><span style="font-size:13px" class="muted">Сб, 22:00 · старт у КВЦ «Башня»</span></td><td>13 / 400</td><td class="dsp-use">Мероприятия, Профиль › подпись карточки; Настройки профиля › подпись поля; Карточка мероприятия › «места ещё есть»; Профиль › «Вы записаны». 13 / 600 — тег типа мероприятия</td></tr>
-    <tr><td><span style="font-size:12px" class="muted">Пн Вт Ср</span></td><td>12 / 400</td><td class="dsp-use">Мероприятия › дни недели</td></tr>
-    <tr><td><span style="font-size:11px" class="muted">Профиль</span></td><td>11 / 400</td><td class="dsp-use">Все экраны › подпись вкладки (активная — 600), подпись в шапке «мини-приложение»; Мероприятия › месяц в плитке даты; Карточка мероприятия › инициалы участников</td></tr>
-  </table>
-
-  <!-- ================= ФОРМА ================= -->
-  <div class="dsp-sec">Скругления и размеры</div>
-  <table class="dsp-table">
-    <tr><th>Токен</th><th>Значение</th><th>Где используется</th></tr>
-    <tr><td><code>--r</code></td><td>14 px</td><td class="dsp-use">Мероприятия, Профиль › карточка; Карточка мероприятия, Партнёр › обложка; Партнёр › блок предложения</td></tr>
-    <tr><td><code>--r-sm</code></td><td>12 px</td><td class="dsp-use">Все экраны › основная кнопка; Мероприятия › плитка даты; Партнёр › плитка логотипа; Карточка мероприятия › тег; Настройки профиля › поле</td></tr>
-    <tr><td><code>--r-toast</code></td><td>22 px</td><td class="dsp-use">Все экраны › тост</td></tr>
-    <tr><td><code>--gutter</code></td><td>16 px</td><td class="dsp-use">Все экраны › боковой и верхний отступ контента</td></tr>
-    <tr><td><code>--gap</code></td><td>12 px</td><td class="dsp-use">Мероприятия, Профиль › внутренний отступ карточки и промежуток между плиткой и текстом; Карточка мероприятия, Партнёр › промежуток в строке; Партнёр › отступ строк адреса; Настройки профиля › промежуток между полями</td></tr>
-    <tr><td><code>--header-h</code></td><td>52 px</td><td class="dsp-use">Все экраны › высота шапки (вне Telegram)</td></tr>
-    <tr><td><code>--btn-h</code></td><td>48 px</td><td class="dsp-use">Карточка мероприятия › «Записаться»; Настройки профиля › «Сохранить»</td></tr>
-    <tr><td><code>--tile</code></td><td>52 px</td><td class="dsp-use">Мероприятия › плитка даты; Партнёр › плитка логотипа</td></tr>
-  </table>
-
-  <!-- ================= ИКОНКИ ================= -->
-  <div class="dsp-sec">Иконки</div>
-  <p class="dsp-note">Растровых элементов (логотипов, фото, 3D-иконок) в прототипе нет: фото заменены заглушкой, аватар пользователя приходит из Telegram.</p>
-  <div class="dsp-stage">
-    <span class="dsp-ico"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 9.5h17M8 2.5v4M16 2.5v4" stroke="currentColor" stroke-width="1.8"/></svg>Таб-бар › Календарь</span>
-    <span class="dsp-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20.5c1.5-4 4.5-6 7.5-6s6 2 7.5 6" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Таб-бар › Профиль</span>
-    <span class="dsp-ico"><span class="g">📅</span>Карточка меропр. › дата (эмодзи)</span>
-    <span class="dsp-ico"><span class="g">📍</span>Карточка меропр. › место (эмодзи)</span>
-    <span class="dsp-ico"><span class="g acc">‹ ›</span>Мероприятия › смена месяца</span>
-    <span class="dsp-ico"><span class="g muted">›</span>Карточка › переход</span>
-    <span class="dsp-ico"><span class="g acc">✓</span>Карточка › вы записаны</span>
+  <div class="dsp-hero">
+    <div>
+      <span class="rubric">Мини-приложение · дизайн-система · #1</span>
+      <h1>WDB Club</h1>
+      <p class="dsp-p">Светлая система в духе сайта клуба и Mercedes-Benz Community: узкая антиква в заголовках и цифрах, гротеск сайта в тексте, тонкие линии вместо плашек, жёлтый клуба как сигнал, а не фон. Всё на этой странице отрисовано теми же файлами, что и экраны: <code>ds/fonts.css</code>, <code>ds/tokens.css</code>, <code>ds/components.css</code>, <code>ds/icons.svg</code>.</p>
+      <p class="dsp-p">«Где используется» — номера экранов из макетов первого этапа: <a class="link" href="mockups/stage-1.html">mockups/stage-1.html</a> (S1–S15).</p>
+    </div>
+    <span class="logo-tile" aria-label="WDB Club"></span>
   </div>
 
-  <!-- ================= КОМПОНЕНТЫ ================= -->
-  <div class="dsp-sec">Компоненты</div>
-  <p class="dsp-note">Отрисованы теми же классами, что в приложении. Новый компонент добавляется только после согласования владельца.</p>
-  <div class="dsp-grid">
-
-    <div class="dsp-item"><div class="dsp-stage flush">
-      <header><button class="l">‹ Назад</button><div class="t"><b>WDB Club</b><small>мини-приложение</small></div><button class="r">Изменить</button></header>
-    </div><div class="dsp-cap"><b>Шапка</b><code>header</code>. Все экраны вне Telegram; слева «Закрыть» или «‹ Назад», справа действие экрана («Изменить» в профиле). Внутри Telegram скрыта, назад — системной кнопкой.</div></div>
-
-    <div class="dsp-item"><div class="dsp-stage flush">
-      <nav style="grid-template-columns:repeat(2,1fr)"><button class="on"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 9.5h17M8 2.5v4M16 2.5v4" stroke="currentColor" stroke-width="1.8"/></svg>Календарь</button><button><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20.5c1.5-4 4.5-6 7.5-6s6 2 7.5 6" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Профиль</button></nav>
-    </div><div class="dsp-cap"><b>Таб-бар</b><code>nav</code>, активная вкладка — <code>.on</code>. Все экраны. Показан с двумя вкладками первого этапа; в прототипе колонок 4, см. «Вопросы» п. 6.</div></div>
-
-    <div class="dsp-item"><div class="dsp-stage">
-      <button class="card"><div class="date"><b>14</b><small>ноя</small></div><div class="main"><div class="name">Ночной заезд по Москве</div><div class="meta">Сб, 22:00 · старт у КВЦ «Башня»</div></div><span class="status-ok">✓</span></button>
-      <button class="card"><div class="date"><b>27</b><small>ноя</small></div><div class="main"><div class="name">Уход за кузовом зимой</div><div class="meta">Пт, 18:00 · у партнёра «Стар»</div></div><span class="muted">›</span></button>
-    </div><div class="dsp-cap"><b>Карточка мероприятия в списке</b><code>.card</code> + <code>.date</code>, справа <code>.status-ok</code> «✓» (записан) или «›». Мероприятия › «Ближайшие» и события дня.</div></div>
-
-    <div class="dsp-item"><div class="dsp-stage">
-      <button class="card"><div class="main"><div class="name">14 ноя · Ночной заезд по Москве</div><div class="status-ok">Вы записаны</div></div><span class="muted">›</span></button>
-    </div><div class="dsp-cap"><b>Карточка записи</b><code>.card</code> без плитки, статус <code>.status-ok</code>. Профиль › «Мои записи».</div></div>
-
-    <div class="dsp-item"><div class="dsp-stage">
-      <div class="month"><button>‹</button><b>Ноябрь 2026</b><button>›</button></div>
-      <div class="grid7"><div class="wd">Пн</div><div class="wd">Вт</div><div class="wd">Ср</div><div class="wd">Чт</div><div class="wd">Пт</div><div class="wd">Сб</div><div class="wd">Вс</div>
-        <button class="day"><span>9</span></button><button class="day today"><span>10</span></button><button class="day"><span>11</span></button><button class="day"><span>12</span></button><button class="day"><span>13</span></button><button class="day ev"><span>14</span></button><button class="day ev sel"><span>15</span></button></div>
-    </div><div class="dsp-cap"><b>Календарь месяца</b><code>.month</code>, <code>.grid7</code>, <code>.day</code>: сегодня — <code>.today</code>, есть событие — <code>.ev</code> (точка), выбран — <code>.sel</code>. Мероприятия.</div></div>
-
-    <div class="dsp-item"><div class="dsp-stage">
-      <div class="cover ph"></div>
-      <span class="tag">Заезд</span>
-    </div><div class="dsp-cap"><b>Обложка с заглушкой фото и тег</b><code>.cover.ph</code> — Карточка мероприятия, Партнёр. <code>.tag</code> — тип мероприятия, Карточка мероприятия.</div></div>
-
-    <div class="dsp-item"><div class="dsp-stage">
-      <button class="btn">Записаться</button>
-      <button class="btn done">Вы записаны ✓ — отменить</button>
-      <button class="link">Добавить в календарь</button>
-    </div><div class="dsp-cap"><b>Кнопки</b><code>.btn</code> — основное действие (Карточка мероприятия › «Записаться», Настройки профиля › «Сохранить»); <code>.btn.done</code> — действие уже выполнено (Карточка мероприятия); <code>.link</code> — второстепенное действие (Карточка мероприятия).</div></div>
-
-    <div class="dsp-item"><div class="dsp-stage">
-      <div class="row" style="margin-bottom:6px">📅 <span>Сб, 14 ноября, 22:00</span></div>
-      <div class="row" style="margin-bottom:12px">📍 <span>КВЦ «Башня», Волоколамское ш., 71Ас1</span></div>
-      <div class="row"><div class="ava"><i>АК</i><i>МС</i><i>ДВ</i><i>+21</i></div><div><b>Идут 24 из 40</b><div class="muted" style="font-size:13px">места ещё есть</div></div></div>
-    </div><div class="dsp-cap"><b>Строка с иконкой и стопка аватаров</b><code>.row</code>, <code>.ava</code>. Карточка мероприятия › дата, место, участники.</div></div>
-
-    <div class="dsp-item"><div class="dsp-stage">
-      <div class="row"><div class="logo">ВЛ</div><div><div style="font-size:18px;font-weight:700">Винотека «Лоза»</div><div class="muted" style="font-size:13px">Вино и бар · партнёр клуба с 2024</div></div></div>
-      <div class="offer"><b>Скидка 12% на счёт</b>Для участников клуба</div>
-      <div class="kv"><span class="muted">Адрес</span><a href="#">Пресненская наб., 8</a></div>
-      <div class="kv"><span class="muted">Телефон</span><a href="#">+7 900 000-00-06</a></div>
-    </div><div class="dsp-cap"><b>Партнёр: логотип, предложение, контакты</b><code>.logo</code>, <code>.offer</code>, <code>.kv</code>. Партнёр.</div></div>
-
-    <div class="dsp-item"><div class="dsp-stage">
-      <div class="me"><div class="av">ИП</div><h1>Иван Петров</h1><div class="muted" style="font-size:13px">Mercedes-AMG G 63 · в клубе с 2024</div></div>
-    </div><div class="dsp-cap"><b>Шапка профиля</b><code>.me</code>, <code>.av</code> — фото из Telegram или инициалы. Профиль.</div></div>
-
-    <div class="dsp-item"><div class="dsp-stage">
-      <div class="field"><label>Имя и фамилия</label><input value="Иван Петров"></div>
-      <div class="field"><label>О себе</label><textarea rows="2">Предприниматель, люблю трек-дни</textarea></div>
-    </div><div class="dsp-cap"><b>Поле ввода</b><code>.field</code> с <code>input</code> или <code>textarea</code>, в фокусе рамка акцентная. Настройки профиля.</div></div>
-
-    <div class="dsp-item"><div class="dsp-stage" style="min-height:120px">
-      <div class="empty">Вы пока никуда не записаны</div>
-      <div class="toast" style="bottom:12px">Вы записаны! Напомним за день</div>
-    </div><div class="dsp-cap"><b>Пустое состояние и тост</b><code>.empty</code> — Мероприятия (день без событий), Профиль (нет записей). <code>.toast</code> — подтверждение действия, все экраны.</div></div>
-
+  <div class="dsp-principles">
+    <div><span class="t-label">01</span><b>Вёрстка журнала</b><span class="t-caption">Крупный заголовок антиквой, над ним рубрика с линейкой, факты — строками под тонкими линиями.</span></div>
+    <div><span class="t-label">02</span><b>Цифры — антиквой</b><span class="t-caption">Даты, места, годы и модели набраны Oranienbaum: цифра работает как акцент.</span></div>
+    <div><span class="t-label">03</span><b>Форма из бренда</b><span class="t-caption">«Лепесток» кнопки сайта 30/6 и скос верхнего края фото. Одинаково скруглённых плашек нет.</span></div>
+    <div><span class="t-label">04</span><b>Жёлтый — сигнал</b><span class="t-caption">Только действие, отметка и статус. Фон — светлый, как на wdbclub.com.</span></div>
+    <div><span class="t-label">05</span><b>Машина — герой</b><span class="t-caption">Фото машины крупно, карточка машины — коллекционная, как в Mercedes-Benz Community.</span></div>
   </div>
 
-  <!-- ================= НЕ ВОШЛО ================= -->
-  <div class="dsp-sec">Не входит в дизайн-систему</div>
-  <ul class="dsp-list dsp-use">
-    <li>Элементы экранов, которые уходят в первом этапе (#2): поиск, чипы-фильтры, бейдж скидки, альбомы и сетка фото, просмотрщик фото, карта участника с QR, нижняя шторка, переключатели уведомлений, контурная кнопка, подзаголовок <code>.sub</code>. Их стили пока остаются в <code>index.html</code> и удаляются вместе с экранами.</li>
-    <li>Оболочка прототипа: тёмно-серый фон вокруг <code>#111</code>, рамка телефона на десктопе (скругление 36 px, рамка 6 px), подпись «Прототип · данные вымышленные» (<code>#666</code>, 11 px).</li>
+  <!-- ====================== ЛОГОТИП ====================== -->
+  <div class="dsp-sec"><span class="t-num">01</span><h2>Логотип</h2></div>
+  <p class="dsp-note">Логотип клуба — с сайта wdbclub.com (растр на жёлтой подложке, <code>ds/img/logo-wdb-club.png</code>). В приложении живёт плиткой-«лепестком» 40 px в правом углу шапки (все экраны S1–S15). Векторного файла пока нет — см. вопрос 1.</p>
+  <div class="dsp-grid"><div class="dsp-item"><div class="dsp-stage"><div class="appbar" style="padding:0"><button class="appbar__back"><svg class="icon"><use href="ds/icons.svg#i-left"/></svg>Мероприятия</button><span class="logo-tile"></span></div></div><div class="dsp-cap"><b>Шапка</b><code>.appbar</code>, <code>.appbar__back</code>, <code>.logo-tile</code>. Все экраны; на корневых экранах (S1, S2, S12, S13) без кнопки назад. В Telegram назад — системной кнопкой.</div></div></div>
+
+  <!-- ====================== ЦВЕТ ====================== -->
+  <div class="dsp-sec"><span class="t-num">02</span><h2>Цвет</h2></div>
+  <p class="dsp-note">Основа — светлый фон и чёрный текст сайта. Жёлтый <code>#FFDA1F</code> и графит <code>#2F2E2E</code> — цвета сайта клуба. Новые по сравнению с сайтом: <code>--alert</code> (ошибка в форме) и прозрачности чёрного для линий и подсказок.</p>
+  <table class="dsp-table" id="t-color"><tr><th></th><th>Токен</th><th>Значение</th><th>Роль и где используется</th></tr></table>
+
+  <!-- ====================== ШРИФТ ====================== -->
+  <div class="dsp-sec"><span class="t-num">03</span><h2>Шрифт</h2></div>
+  <p class="dsp-note">Пара повторяет логику Mercedes-Benz (антиква MB Corpo A + гротеск MB Corpo S) на открытых шрифтах с кириллицей. Обе гарнитуры — SIL OFL 1.1, файлы в <code>ds/fonts/</code>. Выбор владельца 09.11.2026 — вариант 2.</p>
+  <div class="dsp-specimen">
+    <div><span class="t-label">Oranienbaum · <code>--serif</code></span><div class="t-num dsp-big">Аа 14</div><div class="dsp-abc" style="font-family:var(--serif)">АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЭЮЯ абвгдеёжзийклмнопрстуфхцчшщъыьэюя Mercedes-Benz E 55 AMG 0123456789</div><span class="t-caption">Заголовки экранов и разделов, модели машин, даты, числа мест, знак партнёра.</span></div>
+    <div><span class="t-label">Tilda Sans · <code>--sans</code></span><div class="dsp-big" style="font-family:var(--sans);font-weight:300">Аа 14</div><div class="dsp-abc" style="font-family:var(--sans)">АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЭЮЯ абвгдеёжзийклмнопрстуфхцчшщъыьэюя Mercedes-Benz E 55 AMG 0123456789</div><span class="t-caption">Текст, подписи капсом, кнопки, поля, вкладки, номерной знак. Начертания 400 и 600.</span></div>
+  </div>
+  <table class="dsp-table" id="t-type" style="margin-top:28px"><tr><th>Образец</th><th>Стиль</th><th>Где используется</th></tr></table>
+
+  <!-- ====================== ФОРМА ====================== -->
+  <div class="dsp-sec"><span class="t-num">04</span><h2>Форма</h2></div>
+  <p class="dsp-note">Три фирменных жеста: «лепесток» (скругление по диагонали, с сайта клуба), его малая версия и скос верхнего края фото. Карточка машины — единственный элемент с обычным скруглением: это «физическая» карточка.</p>
+  <div class="dsp-grid" id="g-shape"></div>
+
+  <!-- ====================== ОТСТУПЫ ====================== -->
+  <div class="dsp-sec"><span class="t-num">05</span><h2>Отступы</h2></div>
+  <p class="dsp-note">Шаг 4 px. Боковое поле экрана — 20 px. Ниже — все значения, которые стоят на экранах.</p>
+  <table class="dsp-table" id="t-space"><tr><th>Токен</th><th>Размер</th><th>Где используется</th></tr></table>
+
+  <!-- ====================== ТЕНЬ И ДВИЖЕНИЕ ====================== -->
+  <div class="dsp-sec"><span class="t-num">06</span><h2>Тень и движение</h2></div>
+  <table class="dsp-table" id="t-fx"><tr><th>Токен</th><th>Значение</th><th>Где используется</th></tr></table>
+
+  <!-- ====================== ИКОНКИ ====================== -->
+  <div class="dsp-sec"><span class="t-num">07</span><h2>Иконки</h2></div>
+  <p class="dsp-note">Линейные, 24 px, линия 1.4 px со скруглёнными концами — в тон тонким линиям строк. Один файл-спрайт <code>ds/icons.svg</code>, вызов — <code>&lt;svg class="icon"&gt;&lt;use href="ds/icons.svg#i-…"/&gt;&lt;/svg&gt;</code>. Эмодзи вместо иконок не используются.</p>
+  <div class="dsp-icons" id="g-icons"></div>
+
+  <!-- ====================== КОМПОНЕНТЫ ====================== -->
+  <div class="dsp-sec"><span class="t-num">08</span><h2>Компоненты</h2></div>
+  <p class="dsp-note">Отрисованы теми же классами, что в макетах. Новый компонент появляется только после согласования владельца.</p>
+  <div class="dsp-grid" id="g-comp"></div>
+
+  <!-- ====================== НЕ ВОШЛО ====================== -->
+  <div class="dsp-sec"><span class="t-num">09</span><h2>Не входит</h2></div>
+  <ul class="dsp-list">
+    <li><b>Тёмная тема прототипа.</b> Цвета, плитки и скругления старого <code>index.html</code> в ДС не переносятся: экраны пересобираются на этой системе в #2.</li>
+    <li><b>Экраны, которые уходят в первом этапе:</b> список партнёров с поиском и фильтрами, галерея, карта участника с QR, настройки уведомлений.</li>
+    <li><b>Звезда Mercedes-Benz и шрифты MB Corpo</b> — товарный знак и лицензионные шрифты, не используются. От карточки Mercedes-Benz Community взят принцип, а не её волна: вместо волны — скос клуба.</li>
   </ul>
 
-  <!-- ================= ВОПРОСЫ ================= -->
-  <div class="dsp-sec">Вопросы владельцу</div>
-  <p class="dsp-note">Расхождения и частые значения вне ДС. До решения ничего из этого не меняется.</p>
-  <ol class="dsp-list dsp-use">
-    <li>Две почти одинаковые акцентные заливки: тег — 12%, блок предложения партнёра — 10%. Оставить обе или свести к одной (<code>--acc-tint</code>, 12%)?</li>
-    <li>Три размера заголовков: 24 (заголовок экрана), 22 (название мероприятия, имя в профиле), 18 (название партнёра). Название мероприятия и партнёра заданы прямо в разметке, а не стилем. Сделать их стилями ДС и свести 22 и 18 к одному размеру?</li>
-    <li>Два близких скругления: 14 px (карточки, обложки) и 12 px (кнопки, поля, плитки). Оставить оба?</li>
-    <li>Дата и место в карточке мероприятия обозначены эмодзи 📅 и 📍, а вкладки — линейными иконками. Оставить эмодзи или нарисовать иконки в стиле таб-бара?</li>
-    <li>Частые отступы не стали токенами: 10 px (между карточками, под заголовком раздела, между кнопками) и 14 px (под обложкой, внутри блока предложения). Завести токены или оставить в компонентах?</li>
-    <li>Таб-бар свёрстан под 4 вкладки; в первом этапе их 2. Подпись вкладки «Календарь», а заголовок экрана «Мероприятия» — какое название оставить?</li>
-    <li>Логотипа клуба в прототипе нет, в шапке текст «WDB Club». Есть ли у клуба логотип или брендбук, который нужно добавить в ДС?</li>
+  <!-- ====================== ВОПРОСЫ ====================== -->
+  <div class="dsp-sec"><span class="t-num">10</span><h2>Вопросы владельцу</h2></div>
+  <ol class="dsp-list">
+    <li><b>Векторный логотип.</b> На сайте только растр на жёлтой подложке. Нужен SVG от клуба, чтобы логотип был чётким и мог стоять на светлом фоне без плитки.</li>
+    <li><b>Удаление машины.</b> В DoD #2 машину можно создать и изменить. Нужна ли кнопка «Удалить машину»? В макетах её нет.</li>
+    <li><b>Размеры антиквы.</b> Сейчас 7 размеров Oranienbaum (44, 40, 34, 30, 26, 24–20). Оставить так или свести названия в строках (20–24) к одному?</li>
   </ol>
 </div>
+
+<script>
+const $ = s => document.querySelector(s);
+const ic = n => `<svg class="icon"><use href="ds/icons.svg#i-${n}"/></svg>`;
+const row = (t, cells) => $(t).insertAdjacentHTML('beforeend', `<tr>${cells.map(c => `<td>${c}</td>`).join('')}</tr>`);
+
+// ---------- цвет ----------
+[
+  ['--bg', '#FAFAFA', 'Фон экрана (сайт). Все экраны S1–S15; обводка миниатюр участников S3, S10; зазор у аватара S12'],
+  ['--surface', '#FFFFFF', 'Таб-бар — все экраны; карточка машины S14; превью машин S12; шторка S4, S5; номерной знак S9, S14'],
+  ['--ink', '#000000', 'Текст; линейка над фактами, списками и календарём S1, S3, S9; активная вкладка; выбранный день S2; тег «Записаны» S1, S6, S12; шкала мест S3; фокус поля и включённый переключатель S15; радиокнопка S4'],
+  ['--ink-2', 'rgba(0,0,0,.5)', 'Второстепенный текст (сайт): рубрики, подписи, лид, «из 40 мест», неактивная вкладка — все экраны'],
+  ['--ink-3', 'rgba(0,0,0,.28)', 'Дни соседних месяцев S1, S2; подсказки в полях S15; пунктир «Добавить» S12, S13; пустая радиокнопка S4'],
+  ['--hair', 'rgba(0,0,0,.12)', 'Тонкие линии строк S1, S3, S9, S11, S12, S14, S15; трек шкалы мест S3; рамка внутри карточки машины и бейдж S14; кнопки месяца S1; ручка шторки S4'],
+  ['--acc', '#FFDA1F', 'Основная кнопка S3–S5, S7, S10, S15; дни с мероприятиями S1; тег «Ожидание» S1, S8, S12; шкала при полном лимите S7, S8; полоска активной вкладки; плитка логотипа; кольцо аватара S12; иконка тоста S6; ручка переключателя S15; предложение партнёра S11'],
+  ['--acc-glow', 'rgba(255,218,31,.5)', 'Свечение основной кнопки (сайт), через <code>--glow</code>'],
+  ['--acc-wash', '#FFF4BF', 'Светлый конец жёлтого градиента: предложение партнёра S11'],
+  ['--graphite', '#2F2E2E', 'Тост S6 (графит сайта)'],
+  ['--on-dark', '#FFFFFF', 'Текст тоста S6, тега «Записаны» S1, S6, S12, выбранного дня S2'],
+  ['--sand', '#E5E3DF', 'Заглушка под фото и миниатюры S3–S10, S12, S14; зона фото S15; знак партнёра S11; аватар без фото S12, S13'],
+  ['--alert', '#B42318', 'Ошибка в поле формы S15'],
+  ['--scrim', 'rgba(0,0,0,.4)', 'Затемнение под шторкой S4, S5'],
+].forEach(([t, v, u]) => row('#t-color', [`<div class="dsp-sw" style="background:var(${t})"></div>`, `<code>${t}</code>`, `<code>${v}</code>`, `<span class="dsp-use">${u}</span>`]));
+
+// ---------- текст ----------
+[
+  ['<span class="t-display">Мероприятия</span>', '<code>.t-display</code> Oranienbaum 44/1.0', 'Заголовок экрана S1–S10, S15; модель на карточке машины S14'],
+  ['<span class="t-num" style="font-size:40px">24</span>', '<code>.t-num</code> Oranienbaum 40 / 34', 'Занято мест S3, S6–S8 (40); дата в списке S1, S2, S12 (34)'],
+  ['<span class="t-title">Ближайшие</span>', '<code>.t-title</code> Oranienbaum 30/1.05', 'Разделы S1, S2, S12, S13; имя в профиле S12, S13; партнёр S11; заголовок шторки S4, S5; пустое состояние S5, S10, S13'],
+  ['<span class="month__name">Ноябрь 2026</span>', 'Oranienbaum 26 · месяц, предложение', 'Месяц календаря S1, S2; текст предложения партнёра S11'],
+  ['<span class="ev-row__name">Клубный ужин</span>', 'Oranienbaum 24–20 · названия в строках', 'Мероприятие в списке S1, S2, S12 (22); модель в превью S12 (24); машина участника S9 и в выборе S4 (20)'],
+  ['<span class="t-lede">Садовое кольцо, набережные…</span>', '<code>.t-lede</code> Tilda Sans 16, второстепенный', 'Описание мероприятия S3–S8, партнёра S11; число участников S9, S10'],
+  ['<span>Винотека «Лоза»</span>', 'Tilda Sans 16/1.45 · основной текст', 'Значения фактов и характеристик S3–S8, S11, S14; текст переключателя S15; ввод в поле — 18 (S15)'],
+  ['<span class="t-caption">сб, 22:00 · КВЦ «Башня»</span>', '<code>.t-caption</code> Tilda Sans 13', 'Подписи под названиями и пояснения — все экраны'],
+  ['<span class="t-label">Год выпуска</span>', '<code>.t-label</code> Tilda Sans 600 11, капс, разрядка .16em', 'Подписи фактов и характеристик S3–S8, S11, S14; подписи полей S15; месяц под датой S1, S12'],
+  ['<span class="rubric">Заезд · ноябрь</span>', '<code>.rubric</code> рубрика с линейкой', 'Над заголовком экрана S1–S10, S15; над партнёром S11; в шторке S4'],
+].forEach(c => row('#t-type', [c[0], `<span class="dsp-use">${c[1]}</span>`, `<span class="dsp-use">${c[2]}</span>`]));
+
+// ---------- форма ----------
+[
+  ['--leaf', '30px 6px', 'Кнопка S3–S8, S10, S15; предложение партнёра S11', `<div class="dsp-shape" style="border-radius:var(--leaf);background:var(--acc)"></div>`],
+  ['--leaf-s', '14px 3px', 'Теги S1, S3–S8, S12; бейдж S14; плитка логотипа; фото участника S9; фото в выборе S4; тост S6; знак партнёра S11', `<div class="dsp-shape" style="border-radius:var(--leaf-s);width:120px"></div>`],
+  ['--cut', 'скос 16% сверху', 'Обложка мероприятия S3–S8; фото машины S14; превью S12; зона фото S15', `<div class="dsp-shape" style="clip-path:var(--cut);background:var(--sand) url(mockups/img/car-w210.jpg) center/cover"></div>`],
+  ['--r-card / --r-card-in', '16 / 11 px', 'Карточка машины снаружи и внутри рамки S14; превью машин S12', `<div class="dsp-shape" style="border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow-card)"></div>`],
+  ['--r-sheet', '24 px сверху', 'Шторка S4, S5', `<div class="dsp-shape" style="border-radius:var(--r-sheet) var(--r-sheet) 0 0;background:var(--surface);box-shadow:var(--shadow-sheet)"></div>`],
+  ['--r-plate', '4 px', 'Номерной знак S9, S14', `<span class="plate"><span class="plate__n">А 001 АА</span><span class="plate__r">777</span></span>`],
+].forEach(([t, v, u, s]) => $('#g-shape').insertAdjacentHTML('beforeend', `<div class="dsp-item"><div class="dsp-stage">${s}</div><div class="dsp-cap"><b><code>${t}</code> · ${v}</b>${u}</div></div>`));
+
+// ---------- отступы ----------
+[
+  ['--sp-4', 4, 'Иконка и текст в кнопке «назад», вкладке, теге; строки календаря; шаг между подписью и значением поля'],
+  ['--sp-8', 8, 'Рубрика и линейка; верх экрана; таб-бар; зазоры внутри карточки машины'],
+  ['--sp-12', 12, 'Иконка — подпись — значение в фактах и характеристиках; строки фактов; превью машин в ряд'],
+  ['--sp-16', 16, 'Строки списков мероприятий и участников; поля формы; отступы карточки машины'],
+  ['--sp-20', 20, 'Боковое поле экрана — все экраны; предложение партнёра S11'],
+  ['--sp-24', 24, 'Между блоками: факты, места, действия; низ шторки'],
+  ['--sp-32', 32, 'Перед заголовком раздела S1, S2, S12, S13; низ экрана'],
+  ['--sp-48', 48, 'Пустое состояние S13'],
+].forEach(([t, v, u]) => row('#t-space', [`<code>${t}</code>`, `<span class="dsp-space"><i style="width:${v}px"></i>${v} px</span>`, `<span class="dsp-use">${u}</span>`]));
+
+// ---------- тень и движение ----------
+[
+  ['--shadow-card', 'мягкая тень снизу', 'Карточка машины S14; превью машин S12; тост S6'],
+  ['--shadow-sheet', 'тень над шторкой', 'Шторка S4, S5'],
+  ['--shadow-knob', 'тень ручки', 'Переключатель S15'],
+  ['--glow', '0 0 20px жёлтого 50%', 'Основная кнопка (как на сайте); при нажатии гаснет'],
+  ['--ease', 'cubic-bezier(.2,.7,.2,1)', 'Нажатие кнопки, переключатель S15'],
+  ['--dur', '180 ms', 'Нажатие кнопки, переключатель S15'],
+].forEach(([t, v, u]) => row('#t-fx', [`<code>${t}</code>`, `<span class="dsp-use">${v}</span>`, `<span class="dsp-use">${u}</span>`]));
+
+// ---------- иконки ----------
+[
+  ['cal', 'Вкладка «Мероприятия»; дата S3–S8; год S14'], ['user', 'Вкладка «Профиль»'], ['clock', 'Время S3–S8'], ['pin', 'Старт S3–S8; адрес S11'],
+  ['hand', 'Партнёр S3–S8'], ['brand', 'Марка S14'], ['car', 'Модель S14'], ['drop', 'Цвет S14'], ['plate', 'Госномер S14'],
+  ['check', 'Тег «Записаны», кнопка «Вы записаны», тост S1, S6, S12'], ['left', 'Назад; месяц назад S1'], ['right', 'Месяц вперёд S1'],
+  ['plus', 'Добавить машину S5, S12, S13'], ['camera', 'Фото машины S15'], ['phone', 'Телефон партнёра S11'], ['globe', 'Сайт партнёра S11'], ['tg', 'Telegram участника S9'],
+].forEach(([n, u]) => $('#g-icons').insertAdjacentHTML('beforeend', `<div>${ic(n)}<code>i-${n}</code><small>${u}</small></div>`));
+
+// ---------- компоненты ----------
+const C = [];
+C.push(['Таб-бар', '<code>.tabbar</code>, <code>.tab</code>, <code>.is-on</code> — жёлтая полоска сверху. Все экраны; две вкладки первого этапа.',
+  `<nav class="tabbar"><button class="tab is-on">${ic('cal')}Мероприятия</button><button class="tab">${ic('user')}Профиль</button></nav>`]);
+C.push(['Рубрика и заголовок экрана', '<code>.rubric</code> + <code>.t-display</code> + <code>.t-lede</code>. S1–S10, S15.',
+  `<span class="rubric">Заезд · ноябрь</span><h3 class="t-display" style="margin:10px 0">Ночной заезд</h3><p class="t-lede">Садовое кольцо, набережные.</p>`]);
+C.push(['Календарь месяца', '<code>.month</code>, <code>.cal</code>, <code>.cal__d</code>: <code>.has-ev</code> — есть мероприятие, <code>.is-today</code> — сегодня, <code>.is-sel</code> — выбран, <code>.is-out</code> — соседний месяц. S1, S2.',
+  `<div class="month" style="margin-top:0"><span class="month__name">Ноябрь 2026</span><span class="month__nav"><button>${ic('left')}</button><button>${ic('right')}</button></span></div><div class="cal">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(w => `<div class="cal__wd">${w}</div>`).join('')}<div class="cal__d is-out"><span>2</span></div><div class="cal__d is-today"><span>9</span></div><div class="cal__d"><span>10</span></div><div class="cal__d"><span>11</span></div><div class="cal__d"><span>12</span></div><div class="cal__d has-ev"><span>14</span></div><div class="cal__d is-sel"><span>21</span></div></div>`]);
+C.push(['Мероприятие в списке', '<code>.ev-row</code>: дата антиквой, рубрика, название, подпись, тег статуса. S1, S2, S12.',
+  `<button class="ev-row"><span class="ev-row__date"><span class="t-num">14</span><span class="t-label">ноя</span></span><span class="ev-row__body"><span class="t-label">Заезд</span><span class="ev-row__name">Ночной заезд по Москве</span><span class="t-caption">сб, 22:00 · КВЦ «Башня»</span></span><span class="tag tag--on">${ic('check')}Записаны</span></button>`]);
+C.push(['Теги статуса', '<code>.tag--on</code> — записан, <code>.tag--wait</code> — в листе ожидания, <code>.tag--full</code> — мест нет. S1, S3–S8, S12.',
+  `<div style="display:flex;gap:8px;flex-wrap:wrap"><span class="tag tag--on">${ic('check')}Записаны</span><span class="tag tag--wait">Ожидание</span><span class="tag tag--full">Мест нет</span></div>`]);
+C.push(['Обложка мероприятия', '<code>.cover</code> — фото со скосом. S3–S8.', `<div class="cover" style="background-image:url(mockups/img/event-bashnya.jpg);height:160px;margin:0"></div>`]);
+C.push(['Факты', '<code>.facts</code>, <code>.fact</code>, <code>.fact__v</code>: иконка — подпись — значение; строка-кнопка ведёт дальше («›»). S3–S8, S11.',
+  `<div class="facts" style="margin:0"><div class="fact">${ic('clock')}<span class="t-label">Время</span><span class="fact__v">22:00<small>сбор в 21:30</small></span></div><button class="fact">${ic('hand')}<span class="t-label">Партнёр</span><span class="fact__v">Винотека «Лоза» ›</span></button></div>`]);
+C.push(['Места и участники', '<code>.seats</code>, <code>.meter</code> (<code>.meter--full</code> — лимит набран), <code>.thumbs</code> — миниатюры. S3, S6–S8, S10.',
+  `<div class="seats" style="margin-top:0"><span><span class="t-num">24</span> <span class="t-caption">из 40 мест</span></span><span class="t-caption">осталось 16</span></div><div class="meter"><div class="meter__fill" style="width:60%"></div></div><div class="thumbs"><span class="thumbs__i" style="background-image:url(mockups/img/car-sls.jpg)"></span><span class="thumbs__i" style="background-image:url(mockups/img/car-amg-gt.jpg)"></span><span class="thumbs__i" style="background-image:url(mockups/img/car-w210-black.jpg)"></span><span class="thumbs__i">+21</span></div><div class="meter meter--full"><div class="meter__fill" style="width:100%"></div></div>`]);
+C.push(['Участник', '<code>.person</code>: фото машины, имя, модель антиквой, подпись, номер (если владелец разрешил), Telegram. S9.',
+  `<div class="person" style="border:0;padding:0"><span class="person__photo" style="background-image:url(mockups/img/car-sls.jpg)"></span><span><span class="person__name">Анна Кузнецова</span><span class="person__car" style="display:block">SLS AMG</span><span class="person__meta"><span class="t-caption">белый, 2011</span><span class="plate"><span class="plate__n">М 707 ММ</span><span class="plate__r">799</span></span><a class="link" href="#">${ic('tg')}@anna_k</a></span></span></div>`]);
+C.push(['Кнопки и ссылки', '<code>.btn</code> — основное действие («лепесток» со свечением): S3–S5, S7, S10, S15. <code>.btn--done</code> — действие выполнено: S6, S8. <code>.link</code> и <code>.link--quiet</code> — второстепенные: S2, S6, S8, S9, S13, S14. <code>.actions</code> — столбец под кнопкой.',
+  `<button class="btn">Записаться</button><div style="height:12px"></div><button class="btn btn--done">${ic('check')}Вы записаны · E 55 AMG</button><div class="actions"><button class="link">Добавить в календарь</button><button class="link link--quiet">Отменить запись</button></div>`]);
+C.push(['Номерной знак', '<code>.plate</code>, <code>.plate__n</code>, <code>.plate__r</code> — регион отдельно, как на настоящем знаке. S9, S14.',
+  `<span class="plate"><span class="plate__n">А 001 АА</span><span class="plate__r">777</span></span>`]);
+C.push(['Карточка машины', '<code>.car-card</code> — коллекционная карточка: марка и год, владелец в бейдже, модель антиквой, фото со скосом, характеристики <code>.spec</code>. S14; так машину видят участники.',
+  `<div class="car-card"><div class="car-card__in"><div class="car-card__top"><span><b>Mercedes-Benz</b> <span style="color:var(--ink-2)">| 2001</span></span><span class="car-card__badge">Иван Петров</span></div><div class="car-card__rule"></div><div class="car-card__model t-display">E 55 AMG</div><div class="car-card__sub">серебристый</div><div class="car-card__photo" style="background-image:url(mockups/img/car-w210.jpg)"></div><div class="car-card__specs"><div class="spec">${ic('cal')}<span class="t-label">Год выпуска</span><span class="spec__v">2001</span></div><div class="spec">${ic('plate')}<span class="t-label">Госномер</span><span class="spec__v"><span class="plate"><span class="plate__n">А 001 АА</span><span class="plate__r">777</span></span></span></div></div><div class="car-card__foot"><span class="t-label">WDB Club</span><span class="t-label">№ 1 из 2</span></div></div></div>`]);
+C.push(['Машины в профиле', '<code>.car-strip</code> — лента с прокруткой, <code>.car-tile</code> — превью, <code>.car-tile--add</code> — добавить. S12, S13.',
+  `<div class="car-strip" style="margin:0;padding:4px 0 16px"><button class="car-tile"><div class="car-tile__photo" style="background-image:url(mockups/img/car-amg-gt.jpg)"></div><div class="car-tile__body"><div class="car-tile__model">AMG GT C</div><div class="t-caption">Mercedes-AMG · 2019</div></div></button><button class="car-tile car-tile--add">${ic('plus')}<span class="t-label">Добавить</span></button></div>`]);
+C.push(['Выбор машины', '<code>.car-opt</code> с <code>.radio</code>; выбранная — <code>.is-on</code>. Шторка записи S4.',
+  `<button class="car-opt is-on"><span class="car-opt__photo" style="background-image:url(mockups/img/car-w210.jpg)"></span><span><span class="car-opt__model">E 55 AMG</span><span class="t-caption" style="display:block">Mercedes-Benz · 2001</span></span><span class="radio"></span></button><button class="car-opt"><span class="car-opt__photo" style="background-image:url(mockups/img/car-amg-gt.jpg)"></span><span><span class="car-opt__model">AMG GT C Roadster</span><span class="t-caption" style="display:block">Mercedes-AMG · 2019</span></span><span class="radio"></span></button>`]);
+C.push(['Шторка', '<code>.scrim</code> + <code>.sheet</code> + <code>.sheet__grab</code>. Выбор машины S4, «сначала машина» S5.',
+  `<div style="position:relative;height:200px;overflow:hidden;border-radius:12px;background:var(--sand)"><div class="scrim"><div class="sheet"><div class="sheet__grab"></div><h3 class="t-title" style="margin:0 0 12px">На какой машине едете?</h3><button class="btn">Записаться</button></div></div></div>`]);
+C.push(['Профиль', '<code>.profile-head</code>, <code>.avatar</code> — фото из Telegram или инициалы, жёлтое кольцо. <code>.section-head</code> — заголовок раздела со счётчиком или ссылкой. S12, S13.',
+  `<div class="profile-head" style="margin-top:0"><span class="avatar">ИП</span><span><h3 class="t-title">Иван Петров</h3><span class="t-caption">@ivan_petrov · в клубе с 2024</span></span></div><div class="section-head" style="margin:16px 0 0"><h3 class="t-title">Мои машины</h3><span class="t-label" style="color:var(--ink-2)">2</span></div>`]);
+C.push(['Партнёр', '<code>.partner-mark</code> — знак без логотипа, <code>.offer</code> — предложение участникам. S11.',
+  `<div style="display:flex;gap:16px;align-items:center"><span class="partner-mark">ВЛ</span><span class="t-title">Винотека «Лоза»</span></div><div class="offer"><span class="t-label">Для участников клуба</span><div class="offer__text">−12% на счёт</div><span class="t-caption" style="color:var(--ink)">Бессрочно</span></div>`]);
+C.push(['Форма', '<code>.field</code> — только нижняя линия, как на сайте; <code>.is-focus</code>, <code>.is-error</code> + <code>.field__err</code>; <code>.field-row</code> — два поля в ряд; <code>.upload</code> — фото. S15.',
+  `<button class="upload" style="width:100%;height:120px">${ic('camera')}<span class="t-label">Фото машины</span></button><label class="field is-focus"><span class="field__label t-label">Марка</span><input class="field__input" value="Mercedes-Benz"></label><div class="field-row"><label class="field is-error"><span class="field__label t-label">Год выпуска</span><input class="field__input" placeholder="2001"><span class="field__err">Укажите год</span></label><label class="field"><span class="field__label t-label">Цвет</span><input class="field__input" placeholder="серебристый"></label></div>`]);
+C.push(['Переключатель', '<code>.toggle</code> + <code>.switch</code> (<code>.is-on</code>). «Показывать госномер участникам» S15.',
+  `<button class="toggle"><span><span style="display:block">Показывать госномер участникам</span><span class="t-caption">Владелец видит номер всегда</span></span><span class="switch is-on"></span></button><button class="toggle"><span>Выключено</span><span class="switch"></span></button>`]);
+C.push(['Тост и пустое состояние', '<code>.toast</code> — подтверждение, графит S6. <code>.empty</code> — заголовок антиквой и пояснение S5, S10, S13.',
+  `<div class="empty" style="padding:8px 0 72px"><h3 class="t-title">Пока пусто</h3><p class="t-caption">Запишитесь на ближайшее мероприятие.</p></div><div class="toast" style="bottom:12px;left:0;right:0">${ic('check')}Вы записаны на «Ночной заезд»</div>`]);
+C.forEach(([t, cap, html]) => $('#g-comp').insertAdjacentHTML('beforeend', `<div class="dsp-item"><div class="dsp-stage">${html}</div><div class="dsp-cap"><b>${t}</b>${cap}</div></div>`));
+</script>
 </body>
 </html>
