@@ -35,10 +35,10 @@
 
 <script src="screens.js"></script>
 <script>
-const S = window.SCREENS;
+const LIST = window.SCREENS;
 // ---------- вывод ----------
 let html = '', group = '';
-for (const [g, id, title, cap, ph] of S) {
+for (const [g, id, title, cap, ph] of LIST) {
   if (g !== group) { if (group) html += '</div>'; html += `<h2 class="mk-group">${g}</h2><div class="mk-row">`; group = g; }
   html += `<div class="mk-cell" id="${id}"><p class="mk-cap"><b>${id} · ${title}</b>${cap}</p>${ph}</div>`;
 }
