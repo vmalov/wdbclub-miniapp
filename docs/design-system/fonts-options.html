@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WDB Club — варианты шрифтов</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Prata&family=Spectral:ital,wght@0,400;0,500;1,400&family=Golos+Text:wght@400;500;600&family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://static.tildacdn.com/css/fonts-tildasans.css">
+<style>
+  /* Страница выбора шрифтов для #1. Временная: после выбора удаляется, решение — в docs/design-system.md. */
+  :root { --paper: #FAFAFA; --ink: #000; --ink-50: rgba(0,0,0,.5); --hair: rgba(0,0,0,.12); --acc: #FFDA1F; --graphite: #2F2E2E; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #E5E3DF; color: var(--ink); font: 15px/1.45 "TildaSans", system-ui, sans-serif; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 32px 16px 64px; }
+  .intro { max-width: 760px; margin-bottom: 28px; }
+  .intro h1 { font-size: 22px; margin: 0 0 8px; }
+  .intro p { margin: 0 0 6px; color: #444; }
+  .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(390px, 100%), 1fr)); gap: 24px; align-items: start; }
+  .opt-cap { font-size: 13px; margin: 0 0 10px; color: #333; }
+  .opt-cap b { display: block; font-size: 17px; color: #000; margin-bottom: 2px; }
+
+  /* Экран-образец */
+  .phone { background: var(--paper); border-radius: 28px; overflow: hidden; box-shadow: 0 1px 0 rgba(0,0,0,.06), 0 18px 40px -18px rgba(0,0,0,.35); }
+  .bar { display: flex; justify-content: space-between; align-items: baseline; padding: 18px 20px 14px; border-bottom: 1px solid var(--hair); }
+  .bar .club { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
+  .bar .back { font-size: 13px; color: var(--ink-50); }
+  .scr { padding: 22px 20px 26px; }
+  .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-50); display: flex; gap: 10px; align-items: center; }
+  .eyebrow::before { content: ""; width: 18px; height: 1px; background: var(--ink); }
+  .title { margin: 10px 0 18px; line-height: 1.02; }
+  .facts { display: grid; grid-template-columns: 84px 1fr; border-top: 1px solid var(--ink); }
+  .facts > div { padding: 11px 0; border-bottom: 1px solid var(--hair); }
+  .facts .k { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-50); padding-top: 14px; }
+  .date { display: flex; align-items: baseline; gap: 10px; }
+  .date .d { line-height: .9; }
+  .seats { display: flex; justify-content: space-between; align-items: baseline; margin: 20px 0 8px; }
+  .seats .n { line-height: 1; }
+  .meter { height: 3px; background: var(--hair); margin-bottom: 22px; }
+  .meter i { display: block; height: 100%; width: 60%; background: var(--ink); }
+  .btn { display: block; width: 100%; height: 54px; border: 0; background: var(--acc); color: #000; border-radius: 30px 6px; box-shadow: 0 0 20px rgba(255,218,31,.5); font: inherit; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 14px; }
+  .car { margin-top: 24px; padding: 16px; background: var(--graphite); color: #fff; border-radius: 6px 20px; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; }
+  .car .lbl { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.55); grid-column: 1 / -1; }
+  .car .plate { font-size: 12px; letter-spacing: .08em; border: 1px solid rgba(255,255,255,.5); padding: 2px 6px; border-radius: 3px; align-self: center; }
+  .latin { margin-top: 18px; font-size: 13px; color: var(--ink-50); }
+
+  /* Пары шрифтов */
+  .a .serif { font-family: "Cormorant Garamond", serif; font-weight: 600; }
+  .a .sans, .a { font-family: "TildaSans", sans-serif; }
+  .a .title { font-size: 40px; }
+  .a .date .d { font-size: 44px; } .a .seats .n { font-size: 30px; } .a .car .model { font-size: 24px; }
+
+  .b .serif { font-family: "Prata", serif; font-weight: 400; }
+  .b .sans, .b { font-family: "Golos Text", sans-serif; }
+  .b .title { font-size: 32px; line-height: 1.1; }
+  .b .date .d { font-size: 36px; } .b .seats .n { font-size: 26px; } .b .car .model { font-size: 20px; }
+
+  .c .serif { font-family: "Spectral", serif; font-weight: 500; }
+  .c .sans, .c { font-family: "Onest", sans-serif; }
+  .c .title { font-size: 34px; line-height: 1.06; }
+  .c .date .d { font-size: 38px; } .c .seats .n { font-size: 28px; } .c .car .model { font-size: 21px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="intro">
+    <h1>Шрифты дизайн-системы: три варианта</h1>
+    <p>Фирменные шрифты Mercedes-Benz (MB Corpo A для заголовков, MB Corpo S для текста) лицензионные, и использовать их нельзя. Ниже три открытые пары с кириллицей в той же логике: контрастная антиква для заголовков и цифр, строгий гротеск для текста и подписей.</p>
+    <p>Экран один и тот же — карточка мероприятия на светлой теме сайта. Цвета и кнопка-«лепесток» взяты с wdbclub.com. Это образец для выбора шрифта, а не макет экрана.</p>
+  </div>
+  <div class="opts">
+    <div>
+      <p class="opt-cap"><b>1. Cormorant Garamond + Tilda Sans</b>Самая близкая к MB Corpo A классическая антиква. Текст набран Tilda Sans, как на сайте клуба.</p>
+      <div class="phone a" id="sample"></div>
+    </div>
+    <div>
+      <p class="opt-cap"><b>2. Prata + Golos Text</b>Дидона с резким контрастом, звучит как вывеска дилерского центра. Golos — нейтральный гротеск от «Паратайпа».</p>
+      <div class="phone b"></div>
+    </div>
+    <div>
+      <p class="opt-cap"><b>3. Spectral + Onest</b>Сдержанная современная антиква и плотный гротеск. Вариант спокойнее остальных и лучше всего читается на мелком размере.</p>
+      <div class="phone c"></div>
+    </div>
+  </div>
+</div>
+<template id="screen">
+  <div class="bar"><span class="back">‹ Назад</span><span class="club sans">WDB Club</span></div>
+  <div class="scr">
+    <div class="eyebrow">Заезд · № 14</div>
+    <div class="title serif">Ночной заезд по&nbsp;Москве</div>
+    <div class="facts">
+      <div class="k">Когда</div><div class="date"><span class="d serif">14</span><span>ноября, суббота<br><span style="color:var(--ink-50)">сбор 21:30, старт 22:00</span></span></div>
+      <div class="k">Где</div><div>КВЦ «Башня»<br><span style="color:var(--ink-50)">Волоколамское ш., 71Ас1</span></div>
+      <div class="k">Партнёр</div><div>Винотека «Лоза» ›</div>
+    </div>
+    <div class="seats"><span><span class="n serif">24</span> <span style="color:var(--ink-50)">из 40 мест</span></span><span style="font-size:13px">Участники ›</span></div>
+    <div class="meter"><i></i></div>
+    <button class="btn">Записаться</button>
+    <div class="car">
+      <span class="lbl">Ваш автомобиль</span>
+      <span class="model serif">Mercedes-AMG G 63</span><span class="plate">А 001 АА 777</span>
+      <span style="font-size:13px;color:rgba(255,255,255,.7)">2023 · обсидиановый чёрный</span>
+    </div>
+    <div class="latin">Mercedes-Benz · Maybach · AMG — 0123456789</div>
+  </div>
+</template>
+<script>
+  const t = document.getElementById('screen');
+  document.querySelectorAll('.phone').forEach(p => p.appendChild(t.content.cloneNode(true)));
+</script>
+</body>
+</html>
