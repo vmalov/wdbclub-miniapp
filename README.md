@@ -1,5 +1,9 @@
-# WDB Club — мини-приложение (прототип)
+# WDB Club — мини-приложение
 
-Кликабельный прототип Telegram-мини-аппа для клуба WDB Club: партнёры, календарь мероприятий, галерея, профиль. Данные вымышленные.
+Telegram-мини-апп клуба WDB Club. Первый этап: запись на мероприятия, профиль машины, участники мероприятия. Прототип без сервера: мероприятия и участники вымышленные, свои машины и записи хранятся в браузере.
 
-Открыть: https://vmalov.github.io/wdbclub-miniapp/
+- Приложение: https://vmalov.github.io/wdbclub-miniapp/
+- Дизайн-система: https://vmalov.github.io/wdbclub-miniapp/design-system.html
+- Сценарии: https://vmalov.github.io/wdbclub-miniapp/mockups/flows.html
+
+Документы — `docs/` (правила записи — `docs/registration.md`, экраны — `docs/screens/`), контекст для разработки — `CLAUDE.md`. Тесты: `npm test`, `npm run e2e`.

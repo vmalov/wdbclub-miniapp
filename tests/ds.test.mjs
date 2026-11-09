@@ -69,3 +69,15 @@ test('макеты и страница ДС подключают все файл
     assert.ok(html.includes(`${pre}icons.svg#i-`));
   }
 });
+
+test('приложение собрано только из классов ДС и без своих цветов (#2)', () => {
+  const app = read('app/views.js') + read('app/main.js') + read('index.html');
+  const own = new Set(['app', 'grow']); // каркас index.html
+  const declared = new Set([...componentsCss.replace(/\{[^}]*\}/g, '{}').matchAll(/\.([a-z][a-z0-9_-]*)/g)].map((m) => m[1]));
+  const used = new Set();
+  for (const [, list] of app.matchAll(/class="([^"$]*)/g)) list.split(/\s+/).filter(Boolean).forEach((c) => used.add(c));
+  for (const [, c] of app.matchAll(/'((?:is|has)-[a-z-]+|[a-z]+--[a-z-]+)'/g)) used.add(c);
+  assert.deepEqual([...used].filter((c) => !declared.has(c) && !own.has(c)), []);
+  const js = read('app/views.js') + read('app/main.js');
+  assert.deepEqual(js.split('\n').filter((l) => COLOR.test(l)), []);
+});

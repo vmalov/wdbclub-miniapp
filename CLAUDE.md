@@ -1,9 +1,12 @@
 # wdbclub-miniapp — контекст проекта
 
 Telegram-мини-апп клуба WDB Club (клуб владельцев Mercedes-Benz,
-https://wdbclub.com/). Сейчас — кликабельный прототип: один `index.html`
-без сборки, данные вымышленные, состояние в `localStorage`. Публикуется
-через GitHub Pages из `main`: https://vmalov.github.io/wdbclub-miniapp/
+https://wdbclub.com/). Первый этап (#2) — прототип без сервера: мероприятия
+и участники вымышленные (`app/data.js`), свои машины и записи — в
+`localStorage` (`app/store.js`). Без сборки: `index.html` + ES-модули `app/`
+(`logic.js` — правила, `views.js` — экраны, `main.js` — навигация и
+Telegram). Правила записи — `docs/registration.md`. Публикуется через
+GitHub Pages из `main`: https://vmalov.github.io/wdbclub-miniapp/
 
 Процесс — `PROCESS.md` из `vmalov/dev-guides` (тикет → DoD → дизайн → ТЗ →
 код и тесты → PR → мердж владельцем). Документы экранов —
@@ -47,5 +50,8 @@ claude.ai и дают владельцу ссылку. raw.githack.com для п
 
 ## Тесты
 
-`npm test` — проверки ДС (`tests/ds.test.mjs`, `node:test`, без
-зависимостей).
+`npm test` — юнит-тесты правил (`tests/logic.test.mjs`) и проверки ДС
+(`tests/ds.test.mjs`, в том числе «приложение — только классы ДС»).
+`npm run e2e` — сценарии в видимом Chrome (`tests/e2e/`, `playwright-core` +
+установленный Google Chrome; `E2E_HEADLESS=1` — без окна, `E2E_SHOTS=<папка>` —
+скриншоты шагов). Сегодняшнюю дату в приложении подменяет `?today=YYYY-MM-DD`.
