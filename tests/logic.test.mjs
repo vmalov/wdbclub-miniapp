@@ -5,7 +5,8 @@ import {
   upcoming, monthGrid, register, unregister, seatsTaken, waitPosition, eventState, listTag, canSeeParticipants,
   defaultCarId, validateCar, splitPlate, upsertCar, ics, myRegs, plural,
 } from '../app/logic.js';
-import { EVENTS } from '../app/data.js';
+import { EVENTS } from './fixtures/data.js'; // прежний набор мероприятий (#6)
+import { EVENTS as APP_EVENTS, PARTNERS as APP_PARTNERS } from '../app/data.js';
 import { load, save, KEY } from '../app/store.js';
 
 const TODAY = new Date(2026, 10, 9, 12); // 9 ноября 2026
@@ -144,4 +145,13 @@ test('склонение', () => {
   assert.equal(plural(1, 'участник', 'участника', 'участников'), 'участник');
   assert.equal(plural(2, 'участник', 'участника', 'участников'), 'участника');
   assert.equal(plural(11, 'участник', 'участника', 'участников'), 'участников');
+});
+
+test('данные приложения: одно мероприятие — Вояж 13 ноября (#6)', () => {
+  assert.equal(APP_EVENTS.length, 1);
+  const v = APP_EVENTS[0];
+  assert.deepEqual([v.name, v.type, v.date, v.time, v.gather, v.place, v.address, v.cap, v.others.length, v.partnerId],
+    ['Вояж', 'Заезд', '2026-11-13', '10:00', '9:30', 'КВЦ «Башня»', 'Волоколамское ш., 71Ас1', 30, 12, null]);
+  assert.equal(APP_PARTNERS.length, 0);
+  assert.deepEqual(upcoming(APP_EVENTS, TODAY).map((e) => e.id), ['voyage']);
 });
