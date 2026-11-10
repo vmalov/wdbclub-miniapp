@@ -6,8 +6,7 @@ import {
   defaultCarId, validateCar, splitPlate, upsertCar, ics, myRegs, plural,
 } from '../app/logic.js';
 import { EVENTS } from './fixtures/data.js'; // прежний набор мероприятий (#6)
-import { EVENTS as APP_EVENTS, PARTNERS as APP_PARTNERS } from '../app/data.js';
-import { load, save, KEY } from '../app/store.js';
+import { EVENTS as APP_EVENTS, PARTNERS as APP_PARTNERS, setEvents, img } from '../app/data.js';
 
 const TODAY = new Date(2026, 10, 9, 12); // 9 ноября 2026
 const car = { id: 'c1', brand: 'Mercedes-Benz', model: 'E 55 AMG', year: 2001 };
@@ -130,15 +129,11 @@ test('данные: лимит и вымышленная очередь согл
   }
 });
 
-test('хранилище переживает перезагрузку и битые данные', () => {
-  const mem = { d: {}, getItem(k) { return this.d[k] ?? null; }, setItem(k, v) { this.d[k] = v; } };
-  const s = st({ cars: [car], regs: { night: { status: 'on', carId: 'c1' } } });
-  assert.ok(save(s, mem));
-  assert.deepEqual(load(mem).regs, s.regs);
-  mem.d[KEY] = '{битый';
-  assert.deepEqual(load(mem), st());
-  const full = { getItem() { return null; }, setItem() { throw new Error('QuotaExceeded'); } };
-  assert.equal(save(s, full), false);
+test('очередь и организатор: место с сервера, организатор видит всех (#8)', () => {
+  const e = ev({ cap: 1, others: people(1), waitOthers: people(3), myWaitPos: 2 });
+  assert.equal(waitPosition(e, st({ regs: { e: { status: 'wait', carId: 'c1' } } })), 2);
+  assert.equal(canSeeParticipants(st({ organizer: true }), 'e'), true);
+  assert.equal(canSeeParticipants(st(), 'e'), false);
 });
 
 test('склонение', () => {
@@ -147,11 +142,13 @@ test('склонение', () => {
   assert.equal(plural(11, 'участник', 'участника', 'участников'), 'участников');
 });
 
-test('данные приложения: одно мероприятие — Вояж 13 ноября (#6)', () => {
-  assert.equal(APP_EVENTS.length, 1);
-  const v = APP_EVENTS[0];
-  assert.deepEqual([v.name, v.type, v.date, v.time, v.gather, v.place, v.address, v.cap, v.others.length, v.partnerId],
-    ['Вояж', 'Заезд', '2026-11-13', '10:00', '9:30', 'КВЦ «Башня»', 'Волоколамское ш., 71Ас1', 30, 12, null]);
+test('данные приложения: мероприятия — только с сервера, фото — имя или путь (#8)', () => {
+  assert.equal(APP_EVENTS.length, 0, 'в коде мероприятий нет');
   assert.equal(APP_PARTNERS.length, 0);
-  assert.deepEqual(upcoming(APP_EVENTS, TODAY).map((e) => e.id), ['voyage']);
+  setEvents([{ id: 'x' }]);
+  assert.deepEqual(APP_EVENTS, [{ id: 'x' }], 'live binding');
+  setEvents([]);
+  assert.equal(img('car-sls'), 'app/img/car-sls.jpg');
+  assert.equal(img('photos/a.jpg'), 'photos/a.jpg');
+  assert.equal(img(''), '');
 });

@@ -44,8 +44,8 @@ export const seatsTaken = (event, state) => event.others.length + (myStatus(stat
 /** Места есть (для меня, если я ещё не записан). */
 export const hasSeats = (event, state) => seatsTaken(event, state) < event.cap;
 
-/** Моё место в очереди (1 — первый) или null. */
-export const waitPosition = (event, state) => (myStatus(state, event.id) === 'wait' ? (event.waitOthers?.length ?? 0) + 1 : null);
+/** Моё место в очереди (1 — первый) или null. Сервер присылает его в myWaitPos (#8). */
+export const waitPosition = (event, state) => (myStatus(state, event.id) === 'wait' ? event.myWaitPos ?? (event.waitOthers?.length ?? 0) + 1 : null);
 
 /** Сколько людей в очереди передо мной, если встану сейчас. */
 export const queueAhead = (event) => event.waitOthers?.length ?? 0;
@@ -92,8 +92,8 @@ export function unregister(state, eventId) {
   return { ...state, regs };
 }
 
-/** Видит ли участник имена и машины других (записан или в очереди). */
-export const canSeeParticipants = (state, eventId) => myStatus(state, eventId) !== null;
+/** Видит ли участник имена и машины других: записан, в очереди или организатор (#8). */
+export const canSeeParticipants = (state, eventId) => !!state.organizer || myStatus(state, eventId) !== null;
 
 /** Мои записи на будущие мероприятия, ближайшие первыми. */
 export function myRegs(events, state, today) {

@@ -1,0 +1,8 @@
+# Ежедневный бэкап базы и фото (#8): /var/lib/wdbclub/backups, 14 дней.
+[Unit]
+Description=WDB Club backup
+
+[Service]
+Type=oneshot
+User=wdbclub
+ExecStart=/bin/sh -c 'd=/var/lib/wdbclub; t=$(date +%%Y%%m%%d-%%H%%M); sqlite3 $d/wdbclub.db ".backup $d/backups/wdbclub-$t.db" && tar -czf $d/backups/photos-$t.tgz -C $d photos 2>/dev/null; find $d/backups -type f -mtime +14 -delete'

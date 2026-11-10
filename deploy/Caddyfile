@@ -1,0 +1,33 @@
+# WDB Club mini app (#8, docs/server.md). Ставится в /etc/caddy/Caddyfile скриптом tools/deploy.sh.
+# Статика — из текущего релиза, фото — из /var/lib/wdbclub, API — node на 127.0.0.1:8787.
+# Временный адрес на sslip.io — до домена wdb-club.ru.
+(wdbclub) {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+	handle /api/* {
+		reverse_proxy 127.0.0.1:8787
+	}
+	handle /photos/* {
+		root * /var/lib/wdbclub
+		header Cache-Control "public, max-age=31536000, immutable"
+		file_server
+	}
+	handle {
+		root * /opt/wdbclub/current/public
+		header Cache-Control "no-cache"
+		file_server
+	}
+}
+
+wdb-club.ru, 84-201-147-75.sslip.io {
+	import wdbclub
+}
+
+www.wdb-club.ru {
+	redir https://wdb-club.ru{uri} permanent
+}

@@ -27,7 +27,7 @@ export const PARTNERS = [
   { id: 'star', mark: 'ДС', name: 'Детейлинг «Стар»', since: 2025, about: 'Детейлинг и оклейка плёнкой. Мастера работают с ЛКП Mercedes-Benz.', offer: '−15% на оклейку плёнкой', until: 'До 31 декабря 2026', addr: 'ул. Примерная, 12', tel: '+7 900 000-00-01', site: 'star-detailing.ru' },
 ];
 
-export const EVENTS = [
+export let EVENTS = [
   { id: 'autumn', type: 'Заезд', name: 'Осенний заезд', date: '2026-10-26', time: '11:00', place: 'КВЦ «Башня»', address: 'Волоколамское ш., 71Ас1', desc: 'Закрытие сезона: колонна по Новорижскому шоссе и обед за городом.', cap: 50, partnerId: null, cover: 'event-road', others: people(50, 3), waitOthers: [] },
   { id: 'night', type: 'Заезд', name: 'Ночной заезд по Москве', date: '2026-11-14', time: '22:00', gather: '21:30', place: 'КВЦ «Башня»', address: 'Волоколамское ш., 71Ас1', desc: 'Садовое кольцо, набережные, Воробьёвы горы. Финиш — кофе у партнёра.', cap: 40, partnerId: 'loza', cover: 'event-bashnya', others: people(24, 0), waitOthers: [] },
   { id: 'dinner', type: 'Встреча', name: 'Клубный ужин', date: '2026-11-21', time: '19:00', place: 'Винотека «Лоза»', address: 'Пресненская наб., 8', desc: 'Ужин участников клуба, знакомство с новыми членами. Дресс-код smart casual.', cap: 40, partnerId: 'loza', cover: 'event-lineup', others: people(40, 5), waitOthers: people(2, 11) },
@@ -36,5 +36,7 @@ export const EVENTS = [
   { id: 'ice', type: 'Трек', name: 'Зимний трек-день на льду', date: '2027-01-24', time: '11:00', gather: '10:00', place: 'Ледовый автодром', address: 'Подмосковье', desc: 'Инструкторы и упражнения на контроль заноса. Для полноприводных и заднеприводных машин.', cap: 30, partnerId: null, cover: 'event-road', others: people(12, 9), waitOthers: [] },
 ];
 
+export function setEvents(list) { EVENTS = list; }
+
 export const partnerOf = (event) => PARTNERS.find((p) => p.id === event.partnerId) || null;
-export const img = (name) => `app/img/${name}.jpg`;
+export const img = (name) => (!name ? '' : name.includes('/') ? name : `app/img/${name}.jpg`);
