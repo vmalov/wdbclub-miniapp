@@ -151,7 +151,7 @@ test('сценарий 2 и 4: несколько машин — выбор; м�
   assert.match(await page.locator('.seats').innerText(), /24\s+из 40/);
   // мест нет
   await page.locator('.tab', { hasText: 'Мероприятия' }).click();
-  await page.locator('.ev-row', { hasText: 'Клубный ужин' }).locator('.tag--full').waitFor();
+  await page.locator('main .screen > div', { hasText: 'Клубный ужин' }).locator('.btn', { hasText: 'Встать в лист ожидания' }).waitFor(); // #14: «мест нет» — на кнопке карточки
   await page.locator('.ev-row', { hasText: 'Клубный ужин' }).click();
   await page.locator('.meter--full').waitFor();
   await page.getByText('Перед вами в очереди 2 участника').waitFor();
@@ -268,7 +268,7 @@ test('общая база: второй участник видит запись
   await a.page.locator('.btn--done', { hasText: 'Вы записаны' }).waitFor();
   // Иван: мест нет — в очередь первым, видит Анну в списке
   const i = await open({ srv, cars: [CAR_A] });
-  await i.page.locator('.ev-row', { hasText: 'Вояж' }).locator('.tag--full').waitFor();
+  await i.page.locator('main .screen > div', { hasText: 'Вояж' }).locator('.btn', { hasText: 'Встать в лист ожидания' }).waitFor(); // #14: «мест нет» — на кнопке карточки
   await i.page.locator('.ev-row', { hasText: 'Вояж' }).click();
   await i.page.getByText('Вы будете первым в очереди').waitFor();
   await i.page.getByRole('button', { name: 'Встать в лист ожидания' }).click();
