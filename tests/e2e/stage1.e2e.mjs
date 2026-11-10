@@ -84,6 +84,8 @@ async function open({ real = false, user = ME, srv = null, cars = [] } = {}) {
   return { page, ctx, errors, srv };
 }
 const back = (page) => page.evaluate(() => window.__tgBack());
+// мероприятие с машиной для сценариев #8 (в приложении с #10 — Yellow Night без машины)
+const VOYAGE = { id: 'voyage', type: 'Заезд', name: 'Вояж', date: '2026-11-13', time: '10:00', place: 'КВЦ «Башня»', cap: 30, cover: 'event-road' };
 const CAR_A = { brand: 'Mercedes-Benz', model: 'E 55 AMG', year: '2001', color: 'серебристый', plate: 'А 001 АА 777', showPlate: false };
 const CAR_B = { brand: 'Mercedes-AMG', model: 'AMG GT C Roadster', year: '2019', color: 'жёлтый', plate: '', showPlate: false };
 const shot = async (page, name) => { if (shots) await page.screenshot({ path: path.join(shots, name + '.png'), fullPage: true }); };
@@ -200,28 +202,43 @@ test('календарь: выбор дня и сброс; новичок в п�
   await ctx.close();
 });
 
-test('данные приложения: «Вояж» 13 ноября с сервера, без выдуманных участников (#6, #8)', async () => {
-  const { page, ctx, errors } = await open({ real: true, cars: [{ ...CAR_A, plate: '' }] });
+test('данные приложения: Yellow Night 13 ноября — запись без машины одним нажатием (#6, #8, #10)', async () => {
+  const srv = await startServer({ real: true });
+  const anna = { id: 201, first_name: 'Анна', last_name: 'Кузнецова', username: 'anna_k' };
+  touchUser(srv.db, anna);
+  const { page, ctx, errors } = await open({ srv }); // новичок: машин нет
   assert.equal(await page.locator('.ev-row').count(), 1);
   await page.locator('.cal__d.has-ev', { hasText: '13' }).waitFor();
-  await page.locator('.ev-row', { hasText: 'Вояж' }).click();
+  await page.locator('.ev-row', { hasText: 'Yellow Night' }).click();
   await page.getByText('пятница, 13 ноября').waitFor();
-  await page.getByText('сбор в 9:30').waitFor();
-  assert.match(await page.locator('.seats').innerText(), /0\s+из 30 мест/);
-  assert.equal(await page.locator('.fact', { hasText: 'Партнёр' }).count(), 0, 'без партнёра');
-  await shot(page, '6v-01-voyage');
+  await page.locator('.fact', { hasText: 'Нижняя Сыромятническая' }).waitFor();
+  assert.match(await page.locator('.seats').innerText(), /0\s+из 50 мест/);
+  await page.getByText('Кто идёт — после записи').waitFor();
+  await shot(page, '10-01-yellow-night');
   await page.getByRole('button', { name: 'Записаться' }).click();
-  await page.locator('.btn--done', { hasText: 'Вы записаны · E 55 AMG' }).waitFor();
-  assert.match(await page.locator('.seats').innerText(), /1\s+из 30 мест/);
+  await page.locator('.btn--done', { hasText: 'Вы записаны' }).waitFor();
+  assert.equal(await page.locator('.sheet').count(), 0, 'без шторки «Сначала — машина»');
+  assert.match(await page.locator('.seats').innerText(), /1\s+из 50 мест/);
   await page.getByRole('button', { name: 'Все участники' }).click();
-  assert.equal(await page.locator('.person').count(), 1);
-  assert.deepEqual(errors, []);
-  await ctx.close();
+  await page.locator('.person', { hasText: 'Иван Петров · вы' }).locator('.avatar', { hasText: 'ИП' }).waitFor();
+  await shot(page, '10-02-participants');
+  // второй участник записывается тоже без машины и видит первого
+  const a = await open({ srv, user: anna });
+  await a.page.locator('.ev-row', { hasText: 'Yellow Night' }).click();
+  await a.page.locator('.thumbs .thumbs__i', { hasText: 'ИП' }).waitFor();
+  await a.page.getByRole('button', { name: 'Записаться' }).click();
+  await a.page.getByRole('button', { name: 'Все участники' }).click();
+  await a.page.locator('.person', { hasText: 'Иван Петров' }).locator('a.link', { hasText: '@ivan_petrov' }).waitFor();
+  assert.equal(await a.page.locator('.person__car').count(), 0, 'машин в списке нет');
+  await a.page.locator('.tab', { hasText: 'Профиль' }).click();
+  await a.page.locator('.ev-row', { hasText: 'Yellow Night' }).locator('.tag--on').waitFor();
+  assert.deepEqual([...errors, ...a.errors], []);
+  await ctx.close(); await a.ctx.close();
 });
 
 test('общая база: второй участник видит запись первого; отмена продвигает очередь (#8)', async () => {
   const srv = await startServer({ real: true });
-  upsertEvents(srv.db, [{ ...(await loadEvents())[0], cap: 1 }]);
+  upsertEvents(srv.db, [{ ...VOYAGE, cap: 1 }]);
   const anna = { id: 201, first_name: 'Анна', last_name: 'Кузнецова', username: 'anna_k' };
   const a = await open({ srv, user: anna, cars: [CAR_B] });
   await a.page.locator('.ev-row', { hasText: 'Вояж' }).click();
@@ -249,7 +266,9 @@ test('общая база: второй участник видит запись
 });
 
 test('машина: изменить и удалить; машину из записи удалить нельзя (#8)', async () => {
-  const { page, ctx, errors } = await open({ real: true, cars: [CAR_A, CAR_B] });
+  const srv = await startServer({ real: true });
+  upsertEvents(srv.db, [VOYAGE]);
+  const { page, ctx, errors } = await open({ srv, cars: [CAR_A, CAR_B] });
   await page.locator('.ev-row', { hasText: 'Вояж' }).click();
   await page.getByRole('button', { name: 'Записаться' }).click();
   await page.locator('.car-opt', { hasText: 'E 55 AMG' }).click();

@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS events (
   id TEXT PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, date TEXT NOT NULL, time TEXT NOT NULL, gather TEXT,
   place TEXT NOT NULL DEFAULT '', address TEXT NOT NULL DEFAULT '', descr TEXT NOT NULL DEFAULT '', cap INTEGER NOT NULL,
-  cover TEXT, partner_id TEXT
+  cover TEXT, partner_id TEXT, no_car INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS cars (
   id TEXT PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id), brand TEXT NOT NULL, model TEXT NOT NULL, year INTEGER NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS cars (
   created_at INTEGER NOT NULL, deleted_at INTEGER
 );
 CREATE TABLE IF NOT EXISTS regs (
-  event_id TEXT NOT NULL REFERENCES events(id), user_id INTEGER NOT NULL REFERENCES users(id), car_id TEXT NOT NULL REFERENCES cars(id),
+  event_id TEXT NOT NULL REFERENCES events(id), user_id INTEGER NOT NULL REFERENCES users(id), car_id TEXT REFERENCES cars(id),
   status TEXT NOT NULL CHECK (status IN ('on', 'wait')), created_at INTEGER NOT NULL,
   PRIMARY KEY (event_id, user_id)
 );
@@ -33,7 +33,25 @@ CREATE INDEX IF NOT EXISTS cars_user ON cars(user_id);
 export function openDb(file = ':memory:') {
   const db = new DatabaseSync(file);
   db.exec(SCHEMA);
+  migrate(db);
   return db;
+}
+
+/** Миграции базы, созданной прежней схемой (#10): мероприятие «без машины», запись без машины. */
+function migrate(db) {
+  const cols = (t) => db.prepare(`PRAGMA table_info(${t})`).all();
+  if (!cols('events').some((c) => c.name === 'no_car')) db.exec('ALTER TABLE events ADD COLUMN no_car INTEGER NOT NULL DEFAULT 0');
+  if (cols('regs').find((c) => c.name === 'car_id')?.notnull) {
+    db.exec('PRAGMA foreign_keys = OFF');
+    tx(db, () => db.exec(`
+      CREATE TABLE regs_new (
+        event_id TEXT NOT NULL REFERENCES events(id), user_id INTEGER NOT NULL REFERENCES users(id), car_id TEXT REFERENCES cars(id),
+        status TEXT NOT NULL CHECK (status IN ('on', 'wait')), created_at INTEGER NOT NULL, PRIMARY KEY (event_id, user_id));
+      INSERT INTO regs_new SELECT event_id, user_id, car_id, status, created_at FROM regs;
+      DROP TABLE regs;
+      ALTER TABLE regs_new RENAME TO regs;`));
+    db.exec('PRAGMA foreign_keys = ON');
+  }
 }
 
 /** Выполнить fn в транзакции BEGIN IMMEDIATE (запись и отмена атомарны). */
@@ -42,17 +60,30 @@ function tx(db, fn) {
   try { const r = fn(); db.exec('COMMIT'); return r; } catch (e) { db.exec('ROLLBACK'); throw e; }
 }
 
-const eventRow = (r) => ({ id: r.id, type: r.type, name: r.name, date: r.date, time: r.time, gather: r.gather || undefined, place: r.place, address: r.address, desc: r.descr, cap: r.cap, cover: r.cover, partnerId: r.partner_id || null });
+const eventRow = (r) => ({ id: r.id, type: r.type, name: r.name, date: r.date, time: r.time, gather: r.gather || undefined, place: r.place, address: r.address, desc: r.descr, cap: r.cap, cover: r.cover, partnerId: r.partner_id || null, noCar: !!r.no_car });
 
-/** Мероприятия из server/events.json: добавить или обновить; после — продвинуть очереди (лимит мог вырасти). */
+/**
+ * Мероприятия из server/events.json: добавить или обновить; после — продвинуть очереди (лимит мог вырасти).
+ * Мероприятие, которого в файле больше нет, удаляется, если на него нет записей; с записями — остаётся (#10).
+ * Возвращает id оставленных мероприятий, которых нет в файле.
+ */
 export function upsertEvents(db, list) {
-  const st = db.prepare(`INSERT INTO events (id, type, name, date, time, gather, place, address, descr, cap, cover, partner_id)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  const st = db.prepare(`INSERT INTO events (id, type, name, date, time, gather, place, address, descr, cap, cover, partner_id, no_car)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(id) DO UPDATE SET type=excluded.type, name=excluded.name, date=excluded.date, time=excluded.time, gather=excluded.gather,
-      place=excluded.place, address=excluded.address, descr=excluded.descr, cap=excluded.cap, cover=excluded.cover, partner_id=excluded.partner_id`);
-  tx(db, () => {
-    for (const e of list) st.run(e.id, e.type, e.name, e.date, e.time, e.gather ?? null, e.place ?? '', e.address ?? '', e.desc ?? '', e.cap, e.cover ?? null, e.partnerId ?? null);
+      place=excluded.place, address=excluded.address, descr=excluded.descr, cap=excluded.cap, cover=excluded.cover, partner_id=excluded.partner_id,
+      no_car=excluded.no_car`);
+  return tx(db, () => {
+    for (const e of list) st.run(e.id, e.type, e.name, e.date, e.time, e.gather ?? null, e.place ?? '', e.address ?? '', e.desc ?? '', e.cap, e.cover ?? null, e.partnerId ?? null, e.noCar ? 1 : 0);
     for (const e of list) promote(db, e.id);
+    const ids = new Set(list.map((e) => e.id));
+    const kept = [];
+    for (const { id } of db.prepare('SELECT id FROM events').all()) {
+      if (ids.has(id)) continue;
+      if (db.prepare('SELECT 1 FROM regs WHERE event_id = ? LIMIT 1').get(id)) kept.push(id);
+      else db.prepare('DELETE FROM events WHERE id = ?').run(id);
+    }
+    return kept;
   });
 }
 
@@ -77,7 +108,7 @@ export function stateFor(db, userId, { organizers = [] } = {}) {
   const cars = db.prepare('SELECT * FROM cars WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at, rowid').all(userId).map(carOut);
   const regRows = db.prepare(`SELECT r.event_id, r.user_id, r.status, r.created_at, r.car_id, u.name, u.username,
       c.brand, c.model, c.year, c.color, c.plate, c.show_plate, c.photo
-    FROM regs r JOIN users u ON u.id = r.user_id JOIN cars c ON c.id = r.car_id ORDER BY r.created_at, r.rowid`).all();
+    FROM regs r JOIN users u ON u.id = r.user_id LEFT JOIN cars c ON c.id = r.car_id ORDER BY r.created_at, r.rowid`).all();
   const regs = {};
   const events = db.prepare('SELECT * FROM events ORDER BY date, time').all().map((row) => {
     const e = eventRow(row);
@@ -85,9 +116,11 @@ export function stateFor(db, userId, { organizers = [] } = {}) {
     const mine = rows.find((r) => r.user_id === Number(userId));
     if (mine) regs[e.id] = { status: mine.status, carId: mine.car_id, at: mine.created_at };
     const see = organizer || !!mine;
+    // без машины (мероприятие noCar) — car: null; не видно имён — только фото машины или инициалы (#10)
+    const car = (r) => (r.car_id ? { brand: r.brand, model: r.model, year: r.year, color: r.color, photo: r.photo, plate: r.show_plate && r.plate ? r.plate : null } : null);
     const person = (r) => (see
-      ? { name: r.name, tg: r.username ? '@' + r.username : '', car: { brand: r.brand, model: r.model, year: r.year, color: r.color, photo: r.photo, plate: r.show_plate && r.plate ? r.plate : null } }
-      : { name: '', tg: '', car: { photo: r.photo } });
+      ? { name: r.name, tg: r.username ? '@' + r.username : '', car: car(r) }
+      : { name: '', tg: '', initials: initialsOf(r.name), car: r.car_id ? { photo: r.photo } : null });
     const wait = rows.filter((r) => r.status === 'wait');
     e.others = rows.filter((r) => r.status === 'on' && r !== mine).map(person);
     e.waitOthers = wait.filter((r) => r !== mine).map(person);
@@ -100,6 +133,7 @@ export function stateFor(db, userId, { organizers = [] } = {}) {
   };
 }
 
+const initialsOf = (name) => String(name).split(/\s+/).filter(Boolean).slice(0, 2).map((s) => s[0]).join('').toUpperCase();
 const getEvent = (db, id) => { const r = db.prepare('SELECT * FROM events WHERE id = ?').get(id); return r ? eventRow(r) : null; };
 const takenOn = (db, eventId) => db.prepare("SELECT COUNT(*) AS n FROM regs WHERE event_id = ? AND status = 'on'").get(eventId).n;
 
@@ -122,14 +156,16 @@ export function register(db, userId, eventId, carId, today = new Date(), now = D
   return tx(db, () => {
     const e = getEvent(db, eventId);
     if (!e) return { error: 'not-found' };
-    const cars = db.prepare('SELECT id FROM cars WHERE user_id = ? AND deleted_at IS NULL').all(userId);
-    if (!cars.length) return { error: 'no-car' };
-    if (!cars.some((c) => c.id === carId)) return { error: 'bad-car' };
+    if (!e.noCar) {
+      const cars = db.prepare('SELECT id FROM cars WHERE user_id = ? AND deleted_at IS NULL').all(userId);
+      if (!cars.length) return { error: 'no-car' };
+      if (!cars.some((c) => c.id === carId)) return { error: 'bad-car' };
+    }
     if (isPast(e, today)) return { error: 'past' };
     if (db.prepare('SELECT 1 FROM regs WHERE event_id = ? AND user_id = ?').get(eventId, userId)) return { error: 'already' };
     const status = takenOn(db, eventId) < e.cap ? 'on' : 'wait';
-    db.prepare('INSERT INTO regs (event_id, user_id, car_id, status, created_at) VALUES (?, ?, ?, ?, ?)').run(eventId, userId, carId, status, now);
-    db.prepare('UPDATE users SET last_car_id = ? WHERE id = ?').run(carId, userId);
+    db.prepare('INSERT INTO regs (event_id, user_id, car_id, status, created_at) VALUES (?, ?, ?, ?, ?)').run(eventId, userId, e.noCar ? null : carId, status, now);
+    if (!e.noCar) db.prepare('UPDATE users SET last_car_id = ? WHERE id = ?').run(carId, userId);
     return { status };
   });
 }

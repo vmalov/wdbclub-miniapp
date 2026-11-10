@@ -47,7 +47,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   if (!botToken) { console.error('BOT_TOKEN не задан'); process.exit(1); }
   const dataDir = process.env.DATA_DIR || '/var/lib/wdbclub';
   const db = openDb(path.join(dataDir, 'wdbclub.db'));
-  upsertEvents(db, await loadEvents());
+  const kept = upsertEvents(db, await loadEvents());
+  if (kept.length) console.log(`нет в events.json, но есть записи — оставлены: ${kept.join(', ')}`);
   const port = Number(process.env.PORT || 8787);
   const server = createServer({ db, botToken, organizers: parseOrganizers(process.env.ORGANIZERS), dataDir, staticRoot: process.env.STATIC_ROOT || null });
   server.listen(port, '127.0.0.1', () => console.log(`wdbclub api on 127.0.0.1:${port}`));

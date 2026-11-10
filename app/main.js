@@ -118,6 +118,7 @@ function toast(text) {
 
 // ---------- запись ----------
 function startRegister(eventId) {
+  if (EVENTS.find((x) => x.id === eventId)?.noCar) { doRegister(eventId, null); return; } // без машины (#10)
   if (!state.cars.length) { sheet = { kind: 'need', eventId }; renderSheet(); return; }
   if (state.cars.length === 1) { doRegister(eventId, state.cars[0].id); return; }
   sheet = { kind: 'pick', eventId, carId: defaultCarId(state) }; renderSheet();
