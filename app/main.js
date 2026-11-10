@@ -20,7 +20,7 @@ const api = tg ? makeApi(tg.initData, { today: qToday }) : null;
 let state = { cars: [], regs: {}, lastCarId: null, organizer: false };
 let phase = tg ? 'loading' : 'no-tg'; // loading | ready | error | no-tg
 let busy = false;
-const ui = { month: [today.getFullYear(), today.getMonth()], sel: null };
+const ui = {};
 let stack = [['events']];
 let sheet = null; // { kind: 'pick'|'need', eventId, carId }
 let form = null; // { carId, eventId, draft, errors }
@@ -92,9 +92,11 @@ function render(scrollTop) {
   if (view === 'car') html = V.viewCar(ctx(), arg);
   if (view === 'carForm') html = V.viewCarForm(ctx(), form);
   const bl = backLabel();
+  // кнопка записи на карточке мероприятия закреплена над таб-баром (#14)
+  const dock = view === 'event' ? V.eventDock(ctx(), arg) : '';
   app.innerHTML = `<div class="appbar">${bl && !tg ? `<button class="appbar__back" data-act="back">${V.ic('left')}${V.esc(bl)}</button>` : '<span></span>'}<span class="logo-tile" role="img" aria-label="WDB Club"></span></div>
     <main class="grow" data-view="${view}">${html}</main>
-    <nav class="tabbar"><button class="tab${root === 'events' ? ' is-on' : ''}" data-act="tab" data-tab="events">${V.ic('cal')}Мероприятия</button><button class="tab${root === 'profile' ? ' is-on' : ''}" data-act="tab" data-tab="profile">${V.ic('user')}Профиль</button></nav>`;
+    <div class="dock">${dock ? `<div>${dock}</div>` : ''}<nav class="tabbar"><button class="tab${root === 'events' ? ' is-on' : ''}" data-act="tab" data-tab="events">${V.ic('cal')}Мероприятия</button><button class="tab${root === 'profile' ? ' is-on' : ''}" data-act="tab" data-tab="profile">${V.ic('user')}Профиль</button></nav></div>`;
   if (tg) stack.length > 1 ? tg.BackButton.show() : tg.BackButton.hide();
   renderSheet();
   if (scrollTop) window.scrollTo(0, 0);
@@ -206,13 +208,10 @@ document.addEventListener('click', (ev) => {
   switch (act) {
     case 'back': back(); break;
     case 'tab': tab(el.dataset.tab); break;
-    case 'month': { let [y, m] = ui.month; m += +el.dataset.d; if (m < 0) { m = 11; y--; } if (m > 11) { m = 0; y++; } ui.month = [y, m]; ui.sel = null; render(); break; }
-    case 'pick-day': ui.sel = ui.sel === el.dataset.key ? null : el.dataset.key; render(); haptic(); break;
-    case 'clear-day': ui.sel = null; render(); break;
     case 'open-event': go('event', el.dataset.id); break;
     case 'open-partner': go('partner', el.dataset.id); break;
     case 'open-people': go('participants', arg); break;
-    case 'register': startRegister(arg); break;
+    case 'register': startRegister(el.dataset.id || arg); break;
     case 'pick-car': sheet.carId = el.dataset.id; renderSheet(); haptic(); break;
     case 'confirm-register': doRegister(sheet.eventId, sheet.carId); break;
     case 'close-sheet': sheet = null; renderSheet(); break;

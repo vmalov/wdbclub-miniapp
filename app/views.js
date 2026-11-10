@@ -2,7 +2,7 @@
 // вид совпадает с согласованными макетами S1–S16 (mockups/screens.js), ТЗ — docs/screens/*.md.
 // Действия — атрибуты data-act (обрабатывает app/main.js).
 import {
-  MONTHS, MONTHS_GEN, MONTHS_SHORT, WD_SHORT, WEEKDAYS, parseDate, dayKey, monthGrid, upcoming, eventsOn, isPast,
+  MONTHS, MONTHS_GEN, MONTHS_SHORT, WD_SHORT, WEEKDAYS, parseDate, upcoming, isPast,
   myStatus, seatsTaken, waitPosition, queueAhead, eventState, listTag, canSeeParticipants, myRegs, splitPlate, plural, initials, BRAND_DEFAULT,
 } from './logic.js';
 import { EVENTS, partnerOf, img } from './data.js';
@@ -35,26 +35,38 @@ function evRow(e, sub, tag, from) {
     <span class="ev-row__body"><span class="t-label">${esc(e.type)}</span><span class="ev-row__name">${esc(e.name)}</span><span class="t-caption">${esc(sub)}</span></span>${tag ? TAGS[tag] : '<span></span>'}</button>`;
 }
 
-// ================= Мероприятия (S1, S2) =================
-export function viewEvents({ state, today, ui }) {
-  const [y, m] = ui.month;
-  const evDays = new Set(EVENTS.map((e) => e.date));
-  const todayKey = dayKey(today);
-  const cells = monthGrid(y, m).map(({ date, key, out }) => {
-    const has = !out && evDays.has(key);
-    const cls = ['cal__d', out ? 'is-out' : '', has ? 'has-ev' : '', key === todayKey ? 'is-today' : '', key === ui.sel ? 'is-sel' : ''].filter(Boolean).join(' ');
-    const inner = `<span>${date.getDate()}</span>`;
-    return has ? `<button class="${cls}" data-act="pick-day" data-key="${key}" aria-label="${date.getDate()} ${MONTHS_GEN[date.getMonth()]}">${inner}</button>` : `<div class="${cls}">${inner}</div>`;
-  }).join('');
-  const list = ui.sel ? eventsOn(EVENTS, ui.sel) : upcoming(EVENTS, today);
-  const title = ui.sel ? (() => { const d = parseDate(ui.sel); return `${d.getDate()} ${MONTHS_GEN[d.getMonth()]}`; })() : 'Ближайшие';
-  const rows = list.map((e) => evRow(e, `${dayLabel(e)} · ${e.place}`, listTag(e, state, today), 'events')).join('');
-  return `<div class="screen"><span class="rubric">WDB Club · сезон ${y}</span><h1 class="t-display" style="margin-top:10px">Мероприятия</h1>
-    <div class="month"><span class="month__name">${MONTHS[m]} ${y}</span><span class="month__nav"><button data-act="month" data-d="-1" aria-label="Предыдущий месяц">${ic('left')}</button><button data-act="month" data-d="1" aria-label="Следующий месяц">${ic('right')}</button></span></div>
-    <div class="cal">${['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((w) => `<div class="cal__wd">${w}</div>`).join('')}${cells}</div>
-    <div class="section-head"><h2 class="t-title">${title}</h2>${ui.sel ? '<button class="link link--quiet" data-act="clear-day">Все</button>' : ''}</div>
-    ${rows || '<div class="empty"><h2 class="t-title">Скоро анонс</h2><p class="t-caption">Новые мероприятия появятся здесь.</p></div>'}
+// ================= Мероприятия (S1, S2; #14 — без календаря, карточки с картинкой) =================
+/** Кнопка записи по состоянию: в списке (data-id) и в закреплённой панели карточки. */
+function ctaFor(e, state, today, withId) {
+  const st = eventState(e, state, today);
+  const id = withId ? ` data-id="${e.id}"` : '';
+  const reg = state.regs[e.id];
+  const myCar = reg && state.cars.find((c) => c.id === reg.carId);
+  if (st === 'free') return `<button class="btn" data-act="register"${id}>Записаться</button>`;
+  if (st === 'full') return `<button class="btn" data-act="register"${id}>Встать в лист ожидания</button>`;
+  if (st === 'on') return `<button class="btn btn--done" data-act="${withId ? 'open-event' : 'noop'}"${id}>${ic('check')}Вы записаны${myCar ? ' · ' + esc(myCar.model) : ''}</button>`;
+  if (st === 'wait') return `<button class="btn btn--done" data-act="${withId ? 'open-event' : 'noop'}"${id}>Вы в листе ожидания · ${waitPosition(e, state)}-й</button>`;
+  return '';
+}
+export function viewEvents({ state, today }) {
+  const cards = upcoming(EVENTS, today).map((e) => `<div style="margin-bottom:var(--sp-32)">
+    <button class="cover" style="display:block;width:100%;margin-bottom:0${e.cover ? `;background-image:url('${esc(img(e.cover))}')` : ''}" data-act="open-event" data-id="${e.id}" aria-label="${esc(e.name)}"></button>
+    ${evRow(e, `${dayLabel(e)} · ${e.place}`, null, 'events')}
+    <div style="margin-top:var(--sp-16)">${ctaFor(e, state, today, true)}</div></div>`).join('');
+  return `<div class="screen"><span class="rubric">WDB Club · сезон ${today.getFullYear()}</span><h1 class="t-display" style="margin:10px 0 24px">Мероприятия</h1>
+    ${cards || '<div class="empty"><h2 class="t-title">Скоро анонс</h2><p class="t-caption">Новые мероприятия появятся здесь.</p></div>'}
   </div>`;
+}
+
+/** Закреплённая панель записи на карточке мероприятия (#14). */
+export function eventDock({ state, today }, id) {
+  const e = evById(id);
+  if (!e) return '';
+  const st = eventState(e, state, today);
+  let extra = '';
+  if (st === 'full') { const n = queueAhead(e); extra = `<div class="actions" style="margin-top:var(--sp-8)"><span class="t-caption">${n ? `Перед вами в очереди ${n} ${plural(n, 'участник', 'участника', 'участников')}` : 'Вы будете первым в очереди'}</span></div>`; }
+  if (st === 'past') return '<div class="actions" style="margin-top:0"><span class="t-caption">Мероприятие прошло</span></div>';
+  return ctaFor(e, state, today, false) + extra;
 }
 
 // ================= Карточка мероприятия (S3, S6–S8) =================
@@ -70,12 +82,10 @@ export function viewEvent({ state, today }, id) {
   const seeAll = canSeeParticipants(state, e.id);
   const thumbs = e.others.slice(0, 4).map((p) => thumb(p)).join('');
   const rest = e.others.length - Math.min(4, e.others.length);
+  // основная кнопка — в закреплённой панели (eventDock, #14); здесь — календарь и отмена
   let cta = '';
-  if (st === 'free') cta = '<button class="btn" data-act="register">Записаться</button>';
-  if (st === 'full') { const n = queueAhead(e); cta = `<button class="btn" data-act="register">Встать в лист ожидания</button><div class="actions"><span class="t-caption">${n ? `Перед вами в очереди ${n} ${plural(n, 'участник', 'участника', 'участников')}` : 'Вы будете первым в очереди'}</span></div>`; }
-  if (st === 'on') cta = `<button class="btn btn--done" data-act="noop">${ic('check')}Вы записаны${myCar ? ' · ' + esc(myCar.model) : ''}</button><div class="actions"><button class="link" data-act="ics">Добавить в календарь</button><button class="link link--quiet" data-act="unregister">Отменить запись</button></div>`;
-  if (st === 'wait') cta = `<button class="btn btn--done" data-act="noop">Вы в листе ожидания · ${waitPosition(e, state)}-й</button><div class="actions"><button class="link link--quiet" data-act="unregister">Выйти из листа ожидания</button></div>`;
-  if (st === 'past') cta = '<div class="actions"><span class="t-caption">Мероприятие прошло</span></div>';
+  if (st === 'on') cta = '<div class="actions"><button class="link" data-act="ics">Добавить в календарь</button><button class="link link--quiet" data-act="unregister">Отменить запись</button></div>';
+  if (st === 'wait') cta = '<div class="actions"><button class="link link--quiet" data-act="unregister">Выйти из листа ожидания</button></div>';
   const tag = st === 'on' || st === 'wait' || st === 'full' ? TAGS[st] : '';
   return `<div class="cover"${bg(img(e.cover))}></div>
     <div class="screen" style="padding-top:0">
