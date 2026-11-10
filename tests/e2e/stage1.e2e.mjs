@@ -184,16 +184,17 @@ test('сценарий 3: не записан — только миниатюр�
   await ctx.close();
 });
 
-test('календарь: выбор дня и сброс; новичок в профиле', async () => {
+test('список: без календаря, карточки с картинкой и кнопкой записи; новичок в профиле (#14)', async () => {
   const { page, ctx, errors } = await open();
-  await page.locator('.cal__d.is-today', { hasText: '9' }).waitFor();
-  await page.locator('.cal__d.has-ev', { hasText: '21' }).click();
-  await page.locator('.section-head', { hasText: '21 ноября' }).waitFor();
-  assert.equal(await page.locator('.ev-row').count(), 1);
-  await page.getByRole('button', { name: 'Все' }).click();
-  assert.equal(await page.locator('.ev-row').count(), 5);
-  await page.locator('[data-act="month"][data-d="1"]').click();
-  await page.locator('.month__name', { hasText: 'Декабрь 2026' }).waitFor();
+  assert.equal(await page.locator('.cal').count(), 0, 'календаря нет');
+  assert.equal(await page.locator('.ev-row').count(), 5, 'ближайшие пять, прошедшего нет');
+  assert.equal(await page.locator('main .cover').count(), 5, 'у каждой — картинка');
+  await page.locator('main .btn[data-act="register"]').first().waitFor();
+  assert.equal(await page.locator('main .btn', { hasText: 'Встать в лист ожидания' }).count(), 1, 'клубный ужин — мест нет');
+  await shot(page, '14-01-cards');
+  await page.locator('main .cover').first().click();
+  assert.equal(await view(page), 'event');
+  await back(page);
   await page.locator('.tab', { hasText: 'Профиль' }).click();
   await page.getByText('без машины на мероприятия не записаться').waitFor();
   await page.getByText('Пока пусто').waitFor();
@@ -208,7 +209,7 @@ test('данные приложения: Yellow Night 13 ноября — зап
   touchUser(srv.db, anna);
   const { page, ctx, errors } = await open({ srv }); // новичок: машин нет
   assert.equal(await page.locator('.ev-row').count(), 1);
-  await page.locator('.cal__d.has-ev', { hasText: '13' }).waitFor();
+  assert.match(await page.locator('main .cover').getAttribute('style'), /event-yellow-night\.jpg/);
   await page.locator('.ev-row', { hasText: 'Yellow Night' }).click();
   await page.getByText('пятница, 13 ноября').waitFor();
   await page.locator('.fact', { hasText: 'Нижняя Сыромятническая' }).waitFor();
@@ -234,6 +235,27 @@ test('данные приложения: Yellow Night 13 ноября — зап
   await a.page.locator('.ev-row', { hasText: 'Yellow Night' }).locator('.tag--on').waitFor();
   assert.deepEqual([...errors, ...a.errors], []);
   await ctx.close(); await a.ctx.close();
+});
+
+test('кнопка записи закреплена над таб-баром и видна без прокрутки; запись прямо из списка (#14)', async () => {
+  const { page, ctx, errors } = await open({ real: true });
+  await page.locator('.ev-row', { hasText: 'Yellow Night' }).click();
+  const btn = page.locator('.dock .btn', { hasText: 'Записаться' });
+  await btn.waitFor();
+  const box = await btn.boundingBox();
+  const tab = await page.locator('.tabbar').boundingBox();
+  assert.ok(box.y + box.height <= tab.y + 1 && box.y > 844 / 2, 'кнопка над таб-баром, внизу экрана');
+  await shot(page, '14-02-dock');
+  await back(page);
+  await page.locator('main .btn', { hasText: 'Записаться' }).click();
+  await page.locator('main[data-view="event"]').waitFor();
+  await page.locator('.dock .btn--done', { hasText: 'Вы записаны' }).waitFor();
+  await page.getByRole('button', { name: 'Отменить запись' }).waitFor();
+  await back(page);
+  await page.locator('main .btn--done', { hasText: 'Вы записаны' }).waitFor();
+  await shot(page, '14-03-list-registered');
+  assert.deepEqual(errors, []);
+  await ctx.close();
 });
 
 test('общая база: второй участник видит запись первого; отмена продвигает очередь (#8)', async () => {

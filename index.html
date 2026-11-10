@@ -14,7 +14,10 @@
   html, body { margin: 0; background: var(--bg); }
   #app { max-width: 480px; min-height: 100dvh; margin: 0 auto; display: flex; flex-direction: column; }
   #app > .grow { flex: 1; }
-  #app > .tabbar { position: sticky; bottom: 0; padding-bottom: calc(var(--sp-12) + env(safe-area-inset-bottom, 0px)); }
+  /* низ экрана (#14): закреплённая кнопка записи карточки мероприятия + таб-бар */
+  #app > .dock { position: sticky; bottom: 0; z-index: 5; }
+  #app > .dock > div { background: var(--bg); border-top: 1px solid var(--hair); padding: var(--sp-12) var(--sp-20); }
+  #app > .dock > .tabbar { padding-bottom: calc(var(--sp-12) + env(safe-area-inset-bottom, 0px)); }
   #layer { position: fixed; inset: 0; max-width: 480px; margin: 0 auto; pointer-events: none; z-index: 10; }
   #layer > * { pointer-events: auto; }
   #layer .sheet { padding-bottom: calc(var(--sp-24) + env(safe-area-inset-bottom, 0px)); }
