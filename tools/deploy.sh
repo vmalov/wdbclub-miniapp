@@ -31,7 +31,7 @@ sudo install -m 644 "releases/$SHA/deploy/Caddyfile" /etc/caddy/Caddyfile
 sudo ln -sfn "releases/$SHA" current.tmp && sudo mv -Tf current.tmp current
 sudo systemctl daemon-reload
 sudo systemctl enable --now wdbclub-backup.timer >/dev/null
-sudo systemctl enable wdbclub >/dev/null && sudo systemctl restart wdbclub
+sudo systemctl enable wdbclub >/dev/null && sudo systemctl reset-failed wdbclub 2>/dev/null; sudo systemctl restart wdbclub
 sudo caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile >/dev/null 2>&1 || { echo "Caddyfile не прошёл проверку"; exit 1; }
 sudo systemctl reload caddy
 live=$(basename "$(readlink current)")

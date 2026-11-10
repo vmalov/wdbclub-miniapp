@@ -1,12 +1,18 @@
 # wdbclub-miniapp — контекст проекта
 
 Telegram-мини-апп клуба WDB Club (клуб владельцев Mercedes-Benz,
-https://wdbclub.com/). Первый этап (#2) — прототип без сервера: мероприятия
-и участники вымышленные (`app/data.js`), свои машины и записи — в
-`localStorage` (`app/store.js`). Без сборки: `index.html` + ES-модули `app/`
+https://wdbclub.com/). Без сборки: `index.html` + ES-модули `app/`
 (`logic.js` — правила, `views.js` — экраны, `main.js` — навигация и
-Telegram). Правила записи — `docs/registration.md`. Публикуется через
-GitHub Pages из `main`: https://vmalov.github.io/wdbclub-miniapp/
+Telegram, `api.js` — клиент API). Правила записи — `docs/registration.md`.
+
+С #8 данные на сервере: `server/` (Node 22, встроенный `node:sqlite`, без
+npm-зависимостей; правила формы и дат — общие с фронтом из `app/logic.js`),
+мероприятия — `server/events.json`. ВМ `wdbclub` в Yandex Cloud
+(организация Malov Tech, каталог `wdbclub`), домен `wdb-club.ru`, всё про
+инфраструктуру, API и выкатку — `docs/server.md`. Выкатка — `tools/deploy.sh`
+(только по слову владельца), откат — `tools/deploy.sh --rollback`, проверка
+прода — `tools/smoke.mjs`. Токен бота — только на ВМ (`/etc/wdbclub/env`),
+в репозиторий не попадает. GitHub Pages из `main` — прототип первого этапа.
 
 Процесс — `PROCESS.md` из `vmalov/dev-guides` (тикет → DoD → дизайн → ТЗ →
 код и тесты → PR → мердж владельцем). Документы экранов —
@@ -55,6 +61,8 @@ claude.ai и дают владельцу ссылку. raw.githack.com для п
 `npm run e2e` — сценарии в видимом Chrome (`tests/e2e/`, `playwright-core` +
 установленный Google Chrome; `E2E_HEADLESS=1` — без окна, `E2E_SHOTS=<папка>` —
 скриншоты шагов). Сегодняшнюю дату в приложении подменяет `?today=YYYY-MM-DD`.
-Тесты идут на тестовых данных `tests/fixtures/data.js` (e2e подменяет ими
-`app/data.js`), чтобы сценарии не зависели от того, какие мероприятия сейчас в
-приложении; данные приложения проверяет отдельный тест (#6).
+Тесты идут на тестовых данных `tests/fixtures/data.js`: e2e поднимает на каждый
+сценарий свой сервер (`server/main.mjs` с тестовым токеном) и засевает в базу
+тестовые мероприятия с участниками; Telegram подменён заглушкой с подписанным
+`initData`, системная «назад» — `window.__tgBack()`. `npm test` включает
+`tests/server.test.mjs` (подпись, запись и очередь, видимость, машины, HTTP).
