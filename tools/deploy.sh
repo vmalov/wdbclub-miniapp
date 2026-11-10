@@ -25,7 +25,7 @@ ssh "$HOST" bash -s -- "$SHA" <<'REMOTE'
 set -euo pipefail
 SHA=$1
 cd /opt/wdbclub
-sudo chown -R root:root "releases/$SHA"
+sudo chown -R root:root "releases/$SHA" && sudo chmod -R u=rwX,go=rX "releases/$SHA"
 sudo install -m 644 "releases/$SHA/deploy/wdbclub.service" "releases/$SHA/deploy/wdbclub-backup.service" "releases/$SHA/deploy/wdbclub-backup.timer" /etc/systemd/system/
 sudo install -m 644 "releases/$SHA/deploy/Caddyfile" /etc/caddy/Caddyfile
 sudo ln -sfn "releases/$SHA" current.tmp && sudo mv -Tf current.tmp current
