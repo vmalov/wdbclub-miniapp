@@ -1,0 +1,22 @@
+# API WDB Club (#8). Секреты — /etc/wdbclub/env (BOT_TOKEN, ORGANIZERS).
+[Unit]
+Description=WDB Club mini app API
+After=network.target
+
+[Service]
+User=wdbclub
+Group=wdbclub
+Environment=TZ=Europe/Moscow DATA_DIR=/var/lib/wdbclub PORT=8787 NODE_ENV=production
+EnvironmentFile=/etc/wdbclub/env
+WorkingDirectory=/opt/wdbclub/current
+ExecStart=/usr/bin/node --disable-warning=ExperimentalWarning server/main.mjs
+Restart=always
+RestartSec=2
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/wdbclub
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

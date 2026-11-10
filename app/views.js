@@ -105,6 +105,18 @@ export const sheetNeedCar = () => `<div class="sheet__grab"></div>
   <div class="empty" style="padding:8px 0 24px"><h2 class="t-title">Сначала — машина</h2><p class="t-caption">На мероприятия клуба записываются вместе с машиной. Добавьте её — это займёт минуту, после сохранения вернём сюда.</p></div>
   <button class="btn" data-act="add-car-for-event">${ic('plus')}Добавить машину</button>`;
 
+export const sheetDeleteCar = (c) => `<div class="sheet__grab"></div>
+  <div class="empty" style="padding:8px 0 24px"><h2 class="t-title">Удалить ${esc(c.model)}?</h2><p class="t-caption">Машина пропадёт из профиля. Прошлые записи на ней останутся у организаторов.</p></div>
+  <button class="btn" data-act="confirm-delete-car" data-id="${c.id}">Удалить</button>
+  <div class="actions"><button class="link link--quiet" data-act="close-sheet">Отмена</button></div>`;
+
+// ================= Вне Telegram и загрузка (#8) =================
+export const viewOpenInTelegram = () => `<div class="screen"><div class="empty" style="padding:48px 0 24px"><h2 class="t-title">Откройте в Telegram</h2><p class="t-caption">Запись на мероприятия клуба работает внутри Telegram: так мы знаем, кто записывается.</p></div>
+  <a class="btn" href="https://t.me/wdbclub_bot" style="text-decoration:none">${ic('tg')}Открыть @wdbclub_bot</a></div>`;
+export const viewLoading = () => '<div class="screen"><div class="empty" style="padding:48px 0"><p class="t-caption">Загружаем…</p></div></div>';
+export const viewLoadError = () => `<div class="screen"><div class="empty" style="padding:48px 0 24px"><h2 class="t-title">Нет связи</h2><p class="t-caption">Не удалось загрузить данные клуба.</p></div>
+  <button class="btn" data-act="reload">Попробовать ещё раз</button></div>`;
+
 // ================= Участники (S9, S10) =================
 export function viewParticipants({ state, today, me }, id) {
   const e = evById(id);
@@ -120,7 +132,7 @@ export function viewParticipants({ state, today, me }, id) {
       ${isPast(e, today) ? '' : `<button class="btn" data-act="register">${seatsTaken(e, state) < e.cap ? 'Записаться' : 'Встать в лист ожидания'}</button>`}</div>`;
   }
   const reg = state.regs[e.id];
-  const myCar = state.cars.find((c) => c.id === reg.carId);
+  const myCar = reg && state.cars.find((c) => c.id === reg.carId);
   const person = (name, tg, car, plateHtml, photo) => `<div class="person"><span class="person__photo"${bg(photo)}></span>
     <span><span class="person__name">${esc(name)}</span><span class="person__car" style="display:block">${esc(car.model)}</span><span class="person__meta"><span class="t-caption">${esc([car.color, car.year].filter(Boolean).join(', '))}</span>${plateHtml}${tg ? `<a class="link" href="https://t.me/${esc(tg.slice(1))}" data-act="tg" data-tg="${esc(tg.slice(1))}">${ic('tg')}${esc(tg)}</a>` : ''}</span></span></div>`;
   const mine = myCar ? person(`${me.name} · вы`, me.tg, myCar, myCar.showPlate ? plate(myCar.plate) : '', carPhoto(myCar)) : '';
@@ -152,7 +164,7 @@ export function viewProfile({ state, today, me }) {
     const sub = r.status === 'on' ? (car ? `на ${car.model}` : 'записаны') : `${waitPosition(e, state)}-й в очереди`;
     return evRow(e, sub, r.status, 'profile');
   }).join('');
-  return `<div class="screen"><div class="profile-head"><span class="avatar"${bg(me.photo)}>${me.photo ? '' : esc(initials(me.name))}</span><span><h1 class="t-title">${esc(me.name)}</h1><span class="t-caption">${esc(me.tg)}</span></span></div>
+  return `<div class="screen"><div class="profile-head"><span class="avatar"${bg(me.photo)}>${me.photo ? '' : esc(initials(me.name))}</span><span><h1 class="t-title">${esc(me.name)}</h1><span class="t-caption">${esc([me.tg, state.organizer ? 'организатор' : ''].filter(Boolean).join(' · '))}</span></span></div>
     <div class="section-head"><h2 class="t-title">Мои машины</h2>${state.cars.length ? `<span class="t-label" style="color:var(--ink-2)">${state.cars.length}</span>` : ''}</div>
     <div class="car-strip">${strip}</div>
     <div class="section-head"><h2 class="t-title">Мои записи</h2></div>
@@ -179,7 +191,7 @@ export function viewCar({ state, me }, id) {
     </div>
     <div class="car-card__foot"><span class="t-label">WDB Club</span><span class="t-label">№ ${k} из ${state.cars.length}</span></div>
   </div></div>
-  <div class="actions"><button class="link" data-act="edit-car" data-id="${c.id}">Изменить</button></div></div>`;
+  <div class="actions"><button class="link" data-act="edit-car" data-id="${c.id}">Изменить</button><button class="link link--quiet" data-act="delete-car" data-id="${c.id}">Удалить</button></div></div>`;
 }
 
 // ================= Форма машины (S15, S16) =================

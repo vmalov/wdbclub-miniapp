@@ -1,22 +1,25 @@
-// Мини-апп WDB Club, первый этап (#2): навигация, действия, Telegram.
-// Экраны — app/views.js, правила — app/logic.js, данные — app/data.js.
-import { register, unregister, defaultCarId, validateCar, upsertCar, ics, myStatus, BRAND_DEFAULT } from './logic.js';
-import { EVENTS, PARTNERS } from './data.js';
-import { load, save } from './store.js';
+// Мини-апп WDB Club (#2, сервер — #8): навигация, действия, Telegram.
+// Экраны — app/views.js, правила — app/logic.js, данные — с сервера через app/api.js (docs/server.md).
+import { defaultCarId, validateCar, ics, myStatus, BRAND_DEFAULT } from './logic.js';
+import { EVENTS, PARTNERS, setEvents, img } from './data.js';
+import { makeApi } from './api.js';
 import * as V from './views.js';
 
 const tg = window.Telegram?.WebApp?.initData ? window.Telegram.WebApp : null;
 const tgUser = tg?.initDataUnsafe?.user;
-const me = {
-  name: tgUser ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') : 'Иван Петров',
-  tg: tgUser?.username ? '@' + tgUser.username : tgUser ? '' : '@ivan_petrov',
+let me = {
+  name: tgUser ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') : '',
+  tg: tgUser?.username ? '@' + tgUser.username : '',
   photo: tgUser?.photo_url || '',
 };
-// Сегодня: в тестах подменяется параметром ?today=YYYY-MM-DD.
+// Сегодня: в тестах подменяется параметром ?today=YYYY-MM-DD (сервер принимает его только в тестовом режиме).
 const qToday = new URLSearchParams(location.search).get('today');
 const today = qToday ? new Date(qToday + 'T12:00:00') : new Date();
+const api = tg ? makeApi(tg.initData, { today: qToday }) : null;
 
-let state = load();
+let state = { cars: [], regs: {}, lastCarId: null, organizer: false };
+let phase = tg ? 'loading' : 'no-tg'; // loading | ready | error | no-tg
+let busy = false;
 const ui = { month: [today.getFullYear(), today.getMonth()], sel: null };
 let stack = [['events']];
 let sheet = null; // { kind: 'pick'|'need', eventId, carId }
@@ -26,7 +29,36 @@ const app = document.getElementById('app');
 const layer = document.getElementById('layer');
 const cur = () => stack[stack.length - 1];
 const ctx = () => ({ state, today, ui, me });
-const persist = () => { if (!save(state)) toast('Не удалось сохранить: в браузере не хватает места'); };
+/** Принять состояние с сервера. */
+function apply(s) {
+  state = { cars: s.cars, regs: s.regs, lastCarId: s.lastCarId, organizer: !!s.organizer };
+  setEvents(s.events);
+  if (s.me) me = { name: s.me.name || me.name, tg: s.me.tg, photo: s.me.photo || me.photo };
+  // экран удалённой машины или мероприятия, которого больше нет, — назад
+  stack = stack.filter(([v, a]) => !((v === 'car' && !state.cars.some((c) => c.id === a)) || ((v === 'event' || v === 'participants') && !EVENTS.some((e) => e.id === a))));
+  if (!stack.length) stack = [['events']];
+}
+const NET = 'Нет связи, попробуйте ещё раз';
+/** Вызов API с защитой от двойного нажатия. Ошибка сети — тост; неверная подпись — экран «Откройте в Telegram». */
+async function run(fn) {
+  if (busy) return null;
+  busy = true;
+  try {
+    const r = await fn();
+    if (r.error === 'unauthorized') { phase = 'no-tg'; render(true); return null; }
+    if (r.error === 'network' || r.error === 'server') { toast(NET); haptic('error'); return null; }
+    if (r.state) apply(r.state);
+    return r;
+  } finally { busy = false; }
+}
+async function boot() {
+  phase = 'loading'; render();
+  const r = await api.state();
+  if (r.error === 'unauthorized') phase = 'no-tg';
+  else if (r.error) phase = 'error';
+  else { apply(r); phase = 'ready'; }
+  render(true);
+}
 const haptic = (kind) => { try { kind ? tg?.HapticFeedback?.notificationOccurred(kind) : tg?.HapticFeedback?.selectionChanged(); } catch { /* вне Telegram */ } };
 
 // ---------- навигация ----------
@@ -44,6 +76,11 @@ function back() { if (stack.length > 1) { stack.pop(); if (cur()[0] !== 'carForm
 function tab(t) { stack = [[t]]; form = null; render(true); haptic(); }
 
 function render(scrollTop) {
+  if (phase !== 'ready') {
+    app.innerHTML = `<div class="appbar"><span></span><span class="logo-tile" role="img" aria-label="WDB Club"></span></div><main class="grow" data-view="${phase}">${phase === 'no-tg' ? V.viewOpenInTelegram() : phase === 'error' ? V.viewLoadError() : V.viewLoading()}</main>`;
+    if (tg) tg.BackButton.hide();
+    return;
+  }
   const [view, arg] = cur();
   const root = stack[0][0];
   let html = '';
@@ -68,7 +105,8 @@ function renderSheet() {
   layer.querySelector('.scrim')?.remove();
   if (!sheet) return;
   const e = EVENTS.find((x) => x.id === sheet.eventId);
-  const inner = sheet.kind === 'pick' ? V.sheetPickCar(ctx(), e, sheet.carId) : V.sheetNeedCar();
+  const inner = sheet.kind === 'pick' ? V.sheetPickCar(ctx(), e, sheet.carId)
+    : sheet.kind === 'delete' ? V.sheetDeleteCar(state.cars.find((c) => c.id === sheet.carId)) : V.sheetNeedCar();
   layer.insertAdjacentHTML('beforeend', `<div class="scrim" data-act="close-sheet"><div class="sheet" role="dialog" aria-modal="true">${inner}</div></div>`);
 }
 function toast(text) {
@@ -84,11 +122,12 @@ function startRegister(eventId) {
   if (state.cars.length === 1) { doRegister(eventId, state.cars[0].id); return; }
   sheet = { kind: 'pick', eventId, carId: defaultCarId(state) }; renderSheet();
 }
-function doRegister(eventId, carId) {
+async function doRegister(eventId, carId) {
   const e = EVENTS.find((x) => x.id === eventId);
-  const r = register(state, e, carId, today);
-  if (r.error) return;
-  state = r.state; persist(); sheet = null;
+  const r = await run(() => api.register(eventId, carId));
+  if (!r) return;
+  sheet = null;
+  if (r.error) { toast(r.error === 'past' ? 'Мероприятие уже прошло' : r.error === 'already' ? 'Вы уже записаны' : NET); render(); return; }
   haptic('success');
   toast(r.status === 'on' ? `Вы записаны на «${e.name}»` : 'Вы в листе ожидания');
   // запись из карточки или списка участников — остаёмся там; из формы машины — на карточку мероприятия
@@ -99,7 +138,7 @@ function doRegister(eventId, carId) {
 // ---------- форма машины ----------
 function openForm(carId, eventId) {
   const c = carId ? state.cars.find((x) => x.id === carId) : null;
-  form = { carId, eventId, errors: {}, draft: c ? { ...c } : { brand: BRAND_DEFAULT, model: '', year: '', color: '', plate: '', showPlate: false, photoData: '' } };
+  form = { carId, eventId, errors: {}, draft: c ? { ...c, photoData: img(c.photo) } : { brand: BRAND_DEFAULT, model: '', year: '', color: '', plate: '', showPlate: false, photoData: '' } };
   sheet = null;
   go('carForm');
 }
@@ -108,7 +147,7 @@ function readForm() {
   if (!f) return;
   for (const n of ['brand', 'model', 'year', 'color', 'plate']) form.draft[n] = f.elements[n].value;
 }
-function submitForm() {
+async function submitForm() {
   readForm();
   const v = validateCar(form.draft, today);
   if (!v.ok) {
@@ -117,8 +156,11 @@ function submitForm() {
     app.querySelector(`#f-${first}`)?.focus();
     return;
   }
-  const r = upsertCar(state, { ...v.car, photoData: form.draft.photoData || '' }, form.carId, () => 'c' + Date.now().toString(36));
-  state = r.state; persist();
+  // фото отправляем, только если выбрано новое (data URL); иначе на сервере остаётся прежнее
+  const photoData = form.draft.photoData?.startsWith('data:') ? form.draft.photoData : undefined;
+  const r = await run(() => api.saveCar({ ...v.car, photoData }, form.carId));
+  if (!r) return;
+  if (r.error) { form.errors = r.errors || {}; render(); toast(r.errors?.photo || NET); return; }
   const { eventId } = form;
   form = null;
   if (eventId) { stack.pop(); doRegister(eventId, r.id); return; }
@@ -174,7 +216,19 @@ document.addEventListener('click', (ev) => {
     case 'confirm-register': doRegister(sheet.eventId, sheet.carId); break;
     case 'close-sheet': sheet = null; renderSheet(); break;
     case 'add-car-for-event': openForm(null, sheet.eventId); break;
-    case 'unregister': { const w = myStatus(state, arg) === 'wait'; state = unregister(state, arg); persist(); render(); toast(w ? 'Вы вышли из листа ожидания' : 'Запись отменена'); break; }
+    case 'unregister': { const w = myStatus(state, arg) === 'wait'; run(() => api.unregister(arg)).then((r) => { if (!r) return; render(); toast(r.error ? NET : w ? 'Вы вышли из листа ожидания' : 'Запись отменена'); }); break; }
+    case 'delete-car': sheet = { kind: 'delete', carId: el.dataset.id }; renderSheet(); break;
+    case 'confirm-delete-car': {
+      run(() => api.deleteCar(el.dataset.id)).then((r) => {
+        if (!r) return;
+        sheet = null;
+        if (r.error === 'in-use') { renderSheet(); toast(`Машина записана на «${r.event}» — сначала отмените запись`); haptic('error'); return; }
+        if (r.error) { renderSheet(); toast(NET); return; }
+        render(true); toast('Машина удалена');
+      });
+      break;
+    }
+    case 'reload': boot(); break;
     case 'ics': downloadIcs(EVENTS.find((e) => e.id === arg)); break;
     case 'add-car': openForm(null, null); break;
     case 'open-car': go('car', el.dataset.id); break;
@@ -198,5 +252,7 @@ if (tg) {
   const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
   try { tg.setHeaderColor(bg); tg.setBackgroundColor(bg); tg.setBottomBarColor?.(bg); } catch { /* старые клиенты */ }
   tg.BackButton.onClick(back);
+  boot();
+} else {
+  render();
 }
-render();
