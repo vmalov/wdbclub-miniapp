@@ -27,3 +27,7 @@
 wdb-club.ru, 84-201-147-75.sslip.io {
 	import wdbclub
 }
+
+www.wdb-club.ru {
+	redir https://wdb-club.ru{uri} permanent
+}
