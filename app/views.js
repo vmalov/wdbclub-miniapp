@@ -12,6 +12,10 @@ export const ic = (n) => `<svg class="icon" aria-hidden="true"><use href="ds/ico
 const bg = (src) => (src ? ` style="background-image:url('${esc(src)}')"` : '');
 const carPhoto = (car) => car.photoData || (car.photo ? img(car.photo) : '');
 const evById = (id) => EVENTS.find((e) => e.id === id);
+/** Миниатюра участника: фото машины, без машины (#10) — инициалы. */
+const thumb = (p, style = '') => (p.car?.photo
+  ? `<span class="thumbs__i" style="${style}background-image:url('${esc(img(p.car.photo))}')"></span>`
+  : `<span class="thumbs__i"${style ? ` style="${style}"` : ''}>${esc(p.initials || initials(p.name || '') || '·')}</span>`);
 
 export function plate(p) {
   const s = splitPlate(p);
@@ -64,7 +68,7 @@ export function viewEvent({ state, today }, id) {
   const myCar = reg && state.cars.find((c) => c.id === reg.carId);
   const partner = partnerOf(e);
   const seeAll = canSeeParticipants(state, e.id);
-  const thumbs = e.others.slice(0, 4).map((p) => `<span class="thumbs__i"${bg(img(p.car.photo))}></span>`).join('');
+  const thumbs = e.others.slice(0, 4).map((p) => thumb(p)).join('');
   const rest = e.others.length - Math.min(4, e.others.length);
   let cta = '';
   if (st === 'free') cta = '<button class="btn" data-act="register">Записаться</button>';
@@ -88,7 +92,7 @@ export function viewEvent({ state, today }, id) {
       <div class="meter${full ? ' meter--full' : ''}"><div class="meter__fill" style="width:${Math.min(100, Math.round((taken / e.cap) * 100))}%"></div></div>
       <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
         <button class="thumbs" data-act="open-people" aria-label="Участники">${thumbs}${rest > 0 ? `<span class="thumbs__i">+${rest}</span>` : ''}</button>
-        ${seeAll ? '<button class="link" data-act="open-people">Все участники</button>' : '<span class="t-caption">Имена и машины — после записи</span>'}
+        ${seeAll ? '<button class="link" data-act="open-people">Все участники</button>' : `<span class="t-caption">${e.noCar ? 'Кто идёт — после записи' : 'Имена и машины — после записи'}</span>`}
       </div>
       ${cta}
     </div>`;
@@ -124,19 +128,21 @@ export function viewParticipants({ state, today, me }, id) {
   const taken = seatsTaken(e, state);
   const head = `<span class="rubric">${esc(e.name)} · ${d.getDate()} ${MONTHS_GEN[d.getMonth()]}</span><h1 class="t-display" style="margin:10px 0 6px">Участники</h1><p class="t-lede">${taken} из ${e.cap} мест</p>`;
   if (!canSeeParticipants(state, e.id)) {
-    const grid = e.others.slice(0, 12).map((p) => `<span class="thumbs__i" style="width:56px;height:56px;background-image:url('${img(p.car.photo)}')"></span>`).join('');
+    const grid = e.others.slice(0, 12).map((p) => thumb(p, 'width:56px;height:56px;')).join('');
     const rest = e.others.length - Math.min(12, e.others.length);
     return `<div class="screen">${head}
       ${e.others.length ? `<div class="thumbs" style="flex-wrap:wrap;gap:10px 0;padding-left:10px">${grid}${rest > 0 ? `<span class="thumbs__i" style="width:56px;height:56px">+${rest}</span>` : ''}</div>` : ''}
-      <div class="empty" style="padding:24px 0"><h2 class="t-title">${e.others.length ? 'Кто едет — после записи' : 'Пока никого'}</h2><p class="t-caption">${e.others.length ? 'Имена, машины и контакты участников видны тем, кто записан на мероприятие.' : 'Станьте первым.'}</p></div>
+      <div class="empty" style="padding:24px 0"><h2 class="t-title">${e.others.length ? (e.noCar ? 'Кто идёт — после записи' : 'Кто едет — после записи') : 'Пока никого'}</h2><p class="t-caption">${e.others.length ? (e.noCar ? 'Имена и контакты участников видны тем, кто записан на мероприятие.' : 'Имена, машины и контакты участников видны тем, кто записан на мероприятие.') : 'Станьте первым.'}</p></div>
       ${isPast(e, today) ? '' : `<button class="btn" data-act="register">${seatsTaken(e, state) < e.cap ? 'Записаться' : 'Встать в лист ожидания'}</button>`}</div>`;
   }
   const reg = state.regs[e.id];
   const myCar = reg && state.cars.find((c) => c.id === reg.carId);
-  const person = (name, tg, car, plateHtml, photo) => `<div class="person"><span class="person__photo"${bg(photo)}></span>
-    <span><span class="person__name">${esc(name)}</span><span class="person__car" style="display:block">${esc(car.model)}</span><span class="person__meta"><span class="t-caption">${esc([car.color, car.year].filter(Boolean).join(', '))}</span>${plateHtml}${tg ? `<a class="link" href="https://t.me/${esc(tg.slice(1))}" data-act="tg" data-tg="${esc(tg.slice(1))}">${ic('tg')}${esc(tg)}</a>` : ''}</span></span></div>`;
-  const mine = myCar ? person(`${me.name} · вы`, me.tg, myCar, myCar.showPlate ? plate(myCar.plate) : '', carPhoto(myCar)) : '';
-  const others = e.others.map((p) => person(p.name, p.tg, p.car, p.car.plate ? plate(p.car.plate) : '', img(p.car.photo))).join('');
+  // без машины (#10): вместо фото машины — аватар с инициалами (компонент ДС .avatar), без модели
+  const person = (name, tg, car, plateHtml, photo) => `<div class="person">${car ? `<span class="person__photo"${bg(photo)}></span>` : `<span class="avatar">${esc(initials(name))}</span>`}
+    <span><span class="person__name">${esc(name)}</span>${car ? `<span class="person__car" style="display:block">${esc(car.model)}</span>` : ''}<span class="person__meta">${car ? `<span class="t-caption">${esc([car.color, car.year].filter(Boolean).join(', '))}</span>` : ''}${plateHtml}${tg ? `<a class="link" href="https://t.me/${esc(tg.slice(1))}" data-act="tg" data-tg="${esc(tg.slice(1))}">${ic('tg')}${esc(tg)}</a>` : ''}</span></span></div>`;
+  const mine = myCar ? person(`${me.name} · вы`, me.tg, myCar, myCar.showPlate ? plate(myCar.plate) : '', carPhoto(myCar))
+    : reg ? person(`${me.name} · вы`, me.tg, null, '', '') : '';
+  const others = e.others.map((p) => person(p.name, p.tg, p.car, p.car?.plate ? plate(p.car.plate) : '', p.car ? img(p.car.photo) : '')).join('');
   return `<div class="screen">${head}<div style="margin-top:20px;border-top:1px solid var(--ink)"></div>${mine}${others}</div>`;
 }
 

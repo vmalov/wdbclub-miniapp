@@ -93,7 +93,7 @@ test('имена и машины видят записанные, стоящие
   saveCar(db, 1, { ...CAR, showPlate: true }, { id: stateFor(db, 1).cars[0].id, today: TODAY });
   user(2);
   const stranger = stateFor(db, 2).events.find((e) => e.id === 'ev').others[0];
-  assert.deepEqual(stranger, { name: '', tg: '', car: { photo: '' } });
+  assert.deepEqual(stranger, { name: '', tg: '', initials: 'А', car: { photo: '' } });
   const org = stateFor(db, 2, { organizers: [2] });
   assert.equal(org.organizer, true);
   const seen = org.events.find((e) => e.id === 'ev').others[0];
@@ -137,11 +137,62 @@ test('машину из записи на прошедшее мероприят�
 });
 
 // ---------- данные и HTTP ----------
-test('events.json: в выпуске одно мероприятие — «Вояж» 13 ноября, 30 мест', async () => {
+test('events.json: одно мероприятие — Yellow Night 13 ноября, 19:00, 50 мест, без машины (#10)', async () => {
   const list = await loadEvents();
   assert.equal(list.length, 1);
-  assert.deepEqual([list[0].id, list[0].name, list[0].date, list[0].cap], ['voyage', 'Вояж', '2026-11-13', 30]);
-  assert.equal(list[0].others, undefined, 'выдуманных участников нет');
+  const e = list[0];
+  assert.deepEqual([e.id, e.name, e.type, e.date, e.time, e.cap, e.noCar], ['yellow-night', 'Yellow Night · WDB Edition', 'Встреча', '2026-11-13', '19:00', 50, true]);
+  assert.match(e.address, /Нижняя Сыромятническая/);
+  assert.equal(e.others, undefined, 'выдуманных участников нет');
+});
+
+test('мероприятие без машины: запись без машин, машина не сохраняется, в списке — без машины (#10)', () => {
+  const NC = { ...EV, id: 'nc', noCar: true };
+  const { db, user } = setup([EV, NC]);
+  touchUser(db, { id: 1, first_name: 'Без', last_name: 'Машины', username: 'nocar' });
+  assert.equal(register(db, 1, 'nc', null, TODAY).status, 'on');
+  assert.equal(register(db, 1, 'ev', null, TODAY).error, 'no-car', 'обычное — по-прежнему с машиной');
+  const a = user(2);
+  assert.equal(register(db, 2, 'nc', a, TODAY).status, 'on', 'переданная машина игнорируется');
+  const s2 = stateFor(db, 2);
+  assert.equal(s2.regs.nc.carId, null);
+  assert.equal(s2.lastCarId, null, 'запись без машины не меняет машину по умолчанию');
+  assert.deepEqual(s2.events.find((e) => e.id === 'nc').others, [{ name: 'Без Машины', tg: '@nocar', car: null }]);
+  assert.equal(s2.events.find((e) => e.id === 'nc').noCar, true);
+  user(3);
+  assert.deepEqual(stateFor(db, 3).events.find((e) => e.id === 'nc').others[0], { name: '', tg: '', initials: 'БМ', car: null });
+  assert.deepEqual(deleteCar(db, 2, a, TODAY), { ok: true }, 'машину можно удалить — она не в записи');
+});
+
+test('мероприятие убрали из events.json: без записей удаляется, с записями остаётся (#10)', () => {
+  const { db, user } = setup([EV, PAST, { ...EV, id: 'gone' }]);
+  register(db, 1, 'ev', user(1), TODAY);
+  assert.deepEqual(upsertEvents(db, [PAST]), ['ev']);
+  assert.deepEqual(stateFor(db, 1).events.map((e) => e.id).sort(), ['ev', 'old']);
+});
+
+test('миграция: база прежней схемы (car_id NOT NULL, без no_car) открывается и принимает запись без машины (#10)', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'wdb-'));
+  try {
+    const file = path.join(dir, 'old.db');
+    const { DatabaseSync } = await import('node:sqlite');
+    const old = new DatabaseSync(file);
+    old.exec(`CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT NOT NULL DEFAULT '', username TEXT NOT NULL DEFAULT '', photo_url TEXT NOT NULL DEFAULT '', created_at INTEGER NOT NULL, seen_at INTEGER NOT NULL, last_car_id TEXT);
+      CREATE TABLE events (id TEXT PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, date TEXT NOT NULL, time TEXT NOT NULL, gather TEXT, place TEXT NOT NULL DEFAULT '', address TEXT NOT NULL DEFAULT '', descr TEXT NOT NULL DEFAULT '', cap INTEGER NOT NULL, cover TEXT, partner_id TEXT);
+      CREATE TABLE cars (id TEXT PRIMARY KEY, user_id INTEGER NOT NULL, brand TEXT NOT NULL, model TEXT NOT NULL, year INTEGER NOT NULL, color TEXT NOT NULL DEFAULT '', plate TEXT NOT NULL DEFAULT '', show_plate INTEGER NOT NULL DEFAULT 0, photo TEXT NOT NULL DEFAULT '', created_at INTEGER NOT NULL, deleted_at INTEGER);
+      CREATE TABLE regs (event_id TEXT NOT NULL, user_id INTEGER NOT NULL, car_id TEXT NOT NULL, status TEXT NOT NULL, created_at INTEGER NOT NULL, PRIMARY KEY (event_id, user_id));
+      INSERT INTO users VALUES (5, 'Старый', '', '', 1, 1, NULL);
+      INSERT INTO events (id, type, name, date, time, cap) VALUES ('ev', 'Заезд', 'Тест', '2026-11-13', '10:00', 5);
+      INSERT INTO cars (id, user_id, brand, model, year, created_at) VALUES ('c1', 5, 'MB', 'E', 2001, 1);
+      INSERT INTO regs VALUES ('ev', 5, 'c1', 'on', 1);`);
+    old.close();
+    const db = openDb(file);
+    upsertEvents(db, [{ ...EV, id: 'nc', noCar: true }]);
+    touchUser(db, { id: 6, first_name: 'Новый' });
+    assert.equal(register(db, 6, 'nc', null, TODAY).status, 'on');
+    assert.equal(stateFor(db, 5).regs.ev.carId, 'c1', 'старая запись сохранилась');
+    db.close();
+  } finally { await rm(dir, { recursive: true, force: true }); }
 });
 
 test('организаторы из переменной окружения', () => {

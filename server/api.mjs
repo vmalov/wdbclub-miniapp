@@ -55,7 +55,7 @@ export function makeApi({ db, botToken, organizers = [], photosDir, allowToday =
       if (p[1] === 'events' && p[3] === 'register' && p.length === 4) {
         if (m === 'POST') {
           const body = await readJson(req);
-          const r = core.register(db, user.id, p[2], String(body.carId ?? ''), today);
+          const r = core.register(db, user.id, p[2], body.carId == null ? null : String(body.carId), today);
           if (r.error) { send(res, r.error === 'not-found' ? 404 : 409, { error: r.error }); return true; }
           send(res, 200, { status: r.status, state: state() }); return true;
         }

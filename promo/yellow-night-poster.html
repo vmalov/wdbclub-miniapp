@@ -1,0 +1,41 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Oranienbaum;src:url(../ds/fonts/Oranienbaum-cyrillic.woff2) format('woff2');unicode-range:U+0400-04FF}
+@font-face{font-family:Oranienbaum;src:url(../ds/fonts/Oranienbaum-latin.woff2) format('woff2');unicode-range:U+0000-024F,U+2000-206F}
+@font-face{font-family:Tilda;src:url(../ds/fonts/TildaSans-VF.woff2) format('woff2');font-weight:100 900}
+:root{--acc:#FFDA1F}
+*{margin:0;box-sizing:border-box}
+body{background:#000}
+.p{position:relative;width:1080px;height:1350px;overflow:hidden;background:#000 url(yellow-night-bg.jpg) center 62%/cover no-repeat;color:#fff;font-family:Tilda,sans-serif}
+.p::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.25) 34%,rgba(0,0,0,0) 50%,rgba(0,0,0,.15) 66%,rgba(0,0,0,.86) 100%)}
+.in{position:absolute;inset:72px 80px 76px;display:flex;flex-direction:column}
+.top{display:flex;justify-content:space-between;align-items:center}
+.logo{width:96px;height:96px;border-radius:22px;background:var(--acc) url(../ds/img/logo-wdb-club.png) center/118% no-repeat}
+.rub{font-weight:600;font-size:26px;letter-spacing:.18em;text-transform:uppercase;text-align:right;line-height:1.5}
+.rub b{color:var(--acc);font-weight:700}
+h1{font-family:Oranienbaum,serif;font-weight:400;font-size:178px;line-height:.9;color:var(--acc);margin-top:64px;letter-spacing:-.01em;text-shadow:0 0 40px rgba(255,218,31,.35)}
+.ed{font-weight:600;font-size:30px;letter-spacing:.42em;text-transform:uppercase;margin-top:22px}
+.bot{margin-top:auto}
+.rule{height:2px;background:var(--acc);width:120px;margin-bottom:28px}
+.place{font-family:Oranienbaum,serif;font-size:48px;line-height:1.1}
+.addr{font-size:28px;opacity:.85;margin-top:10px}
+.row{display:flex;gap:40px;margin-top:34px;font-size:26px;line-height:1.35}
+.row div{flex:1}
+.row span{display:block;font-weight:600;font-size:20px;letter-spacing:.16em;text-transform:uppercase;color:var(--acc);margin-bottom:6px}
+.cta{margin-top:40px;display:inline-flex;align-self:flex-start;align-items:center;gap:14px;background:var(--acc);color:#000;font-weight:700;font-size:30px;padding:22px 34px;border-radius:999px 999px 999px 0;box-shadow:0 0 30px rgba(255,218,31,.5)}
+.cover{width:1200px;height:700px;background:#000 url(yellow-night-bg.jpg) center 70%/cover no-repeat}
+</style></head><body>
+<div class="p" id="poster"><div class="in">
+ <div class="top"><div class="logo"></div><div class="rub">Пятница · <b>13 ноября</b><br>с 19:00 · без ограничения по времени</div></div>
+ <h1>Yellow<br>Night</h1>
+ <div class="ed">WDB Club Edition</div>
+ <div class="bot">
+  <div class="rule"></div>
+  <div class="place">Дом независимого искусства «дни»</div>
+  <div class="addr">Нижняя Сыромятническая, 1/4с3 · весь второй этаж — наш</div>
+  <div class="row"><div><span>Дресс-код</span>жёлтый аксессуар обязателен</div><div><span>Машины</span>оставляем дома — такси или водитель</div></div>
+  <div class="cta">Записаться — в @wdbclub_bot</div>
+ </div>
+</div></div>
+<div class="cover" id="cover"></div>
+</body></html>
