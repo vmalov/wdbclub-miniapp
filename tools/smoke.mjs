@@ -23,9 +23,16 @@ const c = await call('POST', 'cars', { brand: 'Mercedes-Benz', model: 'Smoke', y
 ok(c.code === 200, 'машина создана');
 const photo = c.state?.cars.find((x) => x.id === c.id)?.photo;
 ok((await fetch(base + photo)).status === 200, `фото отдаётся: ${photo}`);
-const r = await call('POST', `events/${ev.id}/register`, { carId: c.id });
-ok(r.status === 'on' || r.status === 'wait', `запись: ${r.status}`);
-ok((await call('DELETE', `cars/${c.id}`)).error === 'in-use', 'машину из записи не удалить');
-ok((await call('DELETE', `events/${ev.id}/register`)).code === 200, 'запись отменена');
-ok((await call('DELETE', `cars/${c.id}`)).code === 200, 'машина удалена');
+// мероприятие без машины (#10): запись без машины, машину можно удалить и при записи
+const r = await call('POST', `events/${ev.id}/register`, { carId: ev.noCar ? null : c.id });
+ok(r.status === 'on' || r.status === 'wait', `запись${ev.noCar ? ' без машины' : ''}: ${r.status}`);
+if (ev.noCar) {
+  ok(r.state.regs[ev.id].carId === null, 'в записи нет машины');
+  ok((await call('DELETE', `cars/${c.id}`)).code === 200, 'машина удалена (не в записи)');
+  ok((await call('DELETE', `events/${ev.id}/register`)).code === 200, 'запись отменена');
+} else {
+  ok((await call('DELETE', `cars/${c.id}`)).error === 'in-use', 'машину из записи не удалить');
+  ok((await call('DELETE', `events/${ev.id}/register`)).code === 200, 'запись отменена');
+  ok((await call('DELETE', `cars/${c.id}`)).code === 200, 'машина удалена');
+}
 console.log(`\nочистка на ВМ: ssh wdbclub "sudo -u wdbclub sqlite3 /var/lib/wdbclub/wdbclub.db \\"DELETE FROM regs WHERE user_id=1; DELETE FROM cars WHERE user_id=1; DELETE FROM users WHERE id=1;\\"" && ssh wdbclub "sudo rm -f /var/lib/wdbclub/${photo}"`);
