@@ -16,7 +16,7 @@ SHA=$(git rev-parse --short HEAD)
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 mkdir -p "$TMP/public"
 cp -R index.html app ds "$TMP/public/"
-cp -R server deploy "$TMP/"
+cp -R server deploy app package.json "$TMP/"  # app/logic.js — общие правила для сервера
 printf '{"sha":"%s","builtAt":"%s"}\n' "$SHA" "$(date -u +%FT%TZ)" > "$TMP/public/version.json"
 
 ssh "$HOST" "sudo mkdir -p /opt/wdbclub/releases/$SHA && sudo chown deploy /opt/wdbclub/releases/$SHA"
