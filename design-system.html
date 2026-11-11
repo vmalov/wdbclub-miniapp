@@ -59,7 +59,7 @@
     <div>
       <span class="rubric">Мини-приложение · дизайн-система · #1</span>
       <h1>WDB CLUB</h1>
-      <p class="dsp-p">Светлая система в духе сайта клуба и Mercedes-Benz Community: узкая антиква в заголовках и цифрах, гротеск сайта в тексте, тонкие линии вместо плашек, жёлтый клуба как сигнал, а не фон. Всё на этой странице отрисовано теми же файлами, что и экраны: <code>ds/fonts.css</code>, <code>ds/tokens.css</code>, <code>ds/components.css</code>, <code>ds/icons.svg</code>.</p>
+      <p class="dsp-p">Светлая система в духе сайта Клуба и Mercedes-Benz Community: узкая антиква в заголовках и цифрах, гротеск сайта в тексте, тонкие линии вместо плашек, жёлтый Клуба как сигнал, а не фон. Всё на этой странице отрисовано теми же файлами, что и экраны: <code>ds/fonts.css</code>, <code>ds/tokens.css</code>, <code>ds/components.css</code>, <code>ds/icons.svg</code>.</p>
       <p class="dsp-p">«Где используется» — номера экранов из макетов первого этапа: <a class="link" href="mockups/stage-1.html">mockups/stage-1.html</a> (S1–S16).</p>
     </div>
     <span class="logo-tile" aria-label="WDB CLUB"></span>
@@ -75,12 +75,12 @@
 
   <!-- ====================== ЛОГОТИП ====================== -->
   <div class="dsp-sec"><span class="t-num">01</span><h2>Логотип</h2></div>
-  <p class="dsp-note">Логотип клуба — с сайта wdbclub.com (растр на жёлтой подложке, <code>ds/img/logo-wdb-club.png</code>). В приложении живёт плиткой-«лепестком» 40 px в правом углу шапки (все экраны S1–S16). Векторного файла пока нет — см. вопрос 1.</p>
+  <p class="dsp-note">Логотип Клуба — с сайта wdbclub.com (растр на жёлтой подложке, <code>ds/img/logo-wdb-club.png</code>). В приложении живёт плиткой-«лепестком» 40 px в правом углу шапки (все экраны S1–S16). Векторного файла пока нет — см. вопрос 1.</p>
   <div class="dsp-grid"><div class="dsp-item"><div class="dsp-stage"><div class="appbar" style="padding:0"><button class="appbar__back"><svg class="icon"><use href="ds/icons.svg#i-left"/></svg>Мероприятия</button><span class="logo-tile"></span></div></div><div class="dsp-cap"><b>Шапка</b><code>.appbar</code>, <code>.appbar__back</code>, <code>.logo-tile</code>. Все экраны; на корневых экранах (S1, S2, S12, S13) без кнопки назад. В Telegram назад — системной кнопкой.</div></div></div>
 
   <!-- ====================== ЦВЕТ ====================== -->
   <div class="dsp-sec"><span class="t-num">02</span><h2>Цвет</h2></div>
-  <p class="dsp-note">Основа — светлый фон и чёрный текст сайта. Жёлтый <code>#FFDA1F</code> и графит <code>#2F2E2E</code> — цвета сайта клуба. Новые по сравнению с сайтом: <code>--alert</code> (ошибка в форме) и прозрачности чёрного для линий и подсказок.</p>
+  <p class="dsp-note">Основа — светлый фон и чёрный текст сайта. Жёлтый <code>#FFDA1F</code> и графит <code>#2F2E2E</code> — цвета сайта Клуба. Новые по сравнению с сайтом: <code>--alert</code> (ошибка в форме) и прозрачности чёрного для линий и подсказок.</p>
   <table class="dsp-table" id="t-color"><tr><th></th><th>Токен</th><th>Значение</th><th>Роль и где используется</th></tr></table>
 
   <!-- ====================== ШРИФТ ====================== -->
@@ -94,7 +94,7 @@
 
   <!-- ====================== ФОРМА ====================== -->
   <div class="dsp-sec"><span class="t-num">04</span><h2>Форма</h2></div>
-  <p class="dsp-note">Три фирменных жеста: «лепесток» (скругление по диагонали, с сайта клуба), его малая версия и скос верхнего края фото. Карточка машины — единственный элемент с обычным скруглением: это «физическая» карточка.</p>
+  <p class="dsp-note">Три фирменных жеста: «лепесток» (скругление по диагонали, с сайта Клуба), его малая версия и скос верхнего края фото. Карточка машины — единственный элемент с обычным скруглением: это «физическая» карточка.</p>
   <div class="dsp-grid" id="g-shape"></div>
 
   <!-- ====================== ОТСТУПЫ ====================== -->
@@ -116,18 +116,31 @@
   <p class="dsp-note">Отрисованы теми же классами, что в макетах. Новый компонент появляется только после согласования владельца.</p>
   <div class="dsp-grid" id="g-comp"></div>
 
+  <!-- ====================== ТЕКСТЫ И БРЕНД ====================== -->
+  <div class="dsp-sec"><span class="t-num">09</span><h2>Тексты и бренд</h2></div>
+  <p class="dsp-note">Правила владельца и Клуба, 11.11.2026 (#19, #21). Действуют для приложения, бота, макетов, афиш и документов.</p>
+  <ul class="dsp-list">
+    <li><b>WDB CLUB</b> — обычным шрифтом всегда заглавными: «WDB CLUB», не «WDB Club».</li>
+    <li><b>Клуб</b> — с большой буквы во всех падежах, когда речь о WDB CLUB: «Клуб», «Клуба», «участникам Клуба», «в Клубе». Прилагательное («Клубный ужин») — по обычным правилам.</li>
+    <li><b>Позиционирование</b> — «Клуб Mercedes-Benz №1 в России». Стоит в описании бота и в описаниях приложения.</li>
+    <li><b>Название события</b> — «WDB CLUB • &lt;название&gt;», например «WDB CLUB • Yellow Night Edition». Разделитель — точка «•» с пробелами.</li>
+    <li><b>Жёлтый Клуба</b> — <code>#FFDA1F</code>, токен <code>--acc</code>; на афишах и в промо — тот же HEX.</li>
+    <li><b>Шрифты</b> — Oranienbaum и Tilda Sans (раздел 03), решение владельца. Шрифты айдентики Клуба (Falkencrest — «WDB», Cristovan — латиница, Daimler CAC — заголовки, Daimler CS — текст) не используются: Daimler CS и CAC — корпоративные шрифты Daimler/Mercedes-Benz, лицензии Cristovan и Falkencrest не подтверждены; переход — только с лицензиями, чётким гайдом и арт-надзором.</li>
+    <li><b>Эмодзи-пак Клуба</b> (например, ⭐️ вместо WDB CLUB) — только для постов в Telegram. В приложении кастомные эмодзи не показываются, иконки — из <code>ds/icons.svg</code>.</li>
+  </ul>
+
   <!-- ====================== НЕ ВОШЛО ====================== -->
-  <div class="dsp-sec"><span class="t-num">09</span><h2>Не входит</h2></div>
+  <div class="dsp-sec"><span class="t-num">10</span><h2>Не входит</h2></div>
   <ul class="dsp-list">
     <li><b>Тёмная тема прототипа.</b> Цвета, плитки и скругления старого <code>index.html</code> в ДС не переносятся: экраны пересобираются на этой системе в #2.</li>
     <li><b>Экраны, которые уходят в первом этапе:</b> список партнёров с поиском и фильтрами, галерея, карта участника с QR, настройки уведомлений.</li>
-    <li><b>Звезда Mercedes-Benz и шрифты MB Corpo</b> — товарный знак и лицензионные шрифты, не используются. От карточки Mercedes-Benz Community взят принцип, а не её волна: вместо волны — скос клуба.</li>
+    <li><b>Звезда Mercedes-Benz и шрифты MB Corpo</b> — товарный знак и лицензионные шрифты, не используются. От карточки Mercedes-Benz Community взят принцип, а не её волна: вместо волны — скос Клуба.</li>
   </ul>
 
   <!-- ====================== ВОПРОСЫ ====================== -->
-  <div class="dsp-sec"><span class="t-num">10</span><h2>Вопросы владельцу</h2></div>
+  <div class="dsp-sec"><span class="t-num">11</span><h2>Вопросы владельцу</h2></div>
   <ol class="dsp-list">
-    <li><b>Векторный логотип.</b> На сайте только растр на жёлтой подложке. Нужен SVG от клуба, чтобы логотип был чётким и мог стоять на светлом фоне без плитки.</li>
+    <li><b>Векторный логотип.</b> На сайте только растр на жёлтой подложке. Нужен SVG от Клуба, чтобы логотип был чётким и мог стоять на светлом фоне без плитки.</li>
     <li><b>Удаление машины.</b> В DoD #2 машину можно создать и изменить. Нужна ли кнопка «Удалить машину»? В макетах её нет.</li>
     <li><b>Размеры антиквы.</b> Сейчас 7 размеров Oranienbaum (44, 40, 34, 30, 26, 24–20). Оставить так или свести названия в строках (20–24) к одному?</li>
   </ol>
@@ -242,9 +255,9 @@ C.push(['Выбор машины', '<code>.car-opt</code> с <code>.radio</code>
 C.push(['Шторка', '<code>.scrim</code> + <code>.sheet</code> + <code>.sheet__grab</code>. Выбор машины S4, «сначала машина» S5.',
   `<div style="position:relative;height:200px;overflow:hidden;border-radius:12px;background:var(--sand)"><div class="scrim"><div class="sheet"><div class="sheet__grab"></div><h3 class="t-title" style="margin:0 0 12px">На какой машине едете?</h3><button class="btn">Записаться</button></div></div></div>`]);
 C.push(['Профиль', '<code>.profile-head</code>, <code>.avatar</code> — фото из Telegram или инициалы, жёлтое кольцо. <code>.section-head</code> — заголовок раздела со счётчиком или ссылкой. S12, S13.',
-  `<div class="profile-head" style="margin-top:0"><span class="avatar">ИП</span><span><h3 class="t-title">Иван Петров</h3><span class="t-caption">@ivan_petrov · в клубе с 2024</span></span></div><div class="section-head" style="margin:16px 0 0"><h3 class="t-title">Мои машины</h3><span class="t-label" style="color:var(--ink-2)">2</span></div>`]);
+  `<div class="profile-head" style="margin-top:0"><span class="avatar">ИП</span><span><h3 class="t-title">Иван Петров</h3><span class="t-caption">@ivan_petrov · в Клубе с 2024</span></span></div><div class="section-head" style="margin:16px 0 0"><h3 class="t-title">Мои машины</h3><span class="t-label" style="color:var(--ink-2)">2</span></div>`]);
 C.push(['Партнёр', '<code>.partner-mark</code> — знак без логотипа, <code>.offer</code> — предложение участникам. S11.',
-  `<div style="display:flex;gap:16px;align-items:center"><span class="partner-mark">ВЛ</span><span class="t-title">Винотека «Лоза»</span></div><div class="offer"><span class="t-label">Для участников клуба</span><div class="offer__text">−12% на счёт</div><span class="t-caption" style="color:var(--ink)">Бессрочно</span></div>`]);
+  `<div style="display:flex;gap:16px;align-items:center"><span class="partner-mark">ВЛ</span><span class="t-title">Винотека «Лоза»</span></div><div class="offer"><span class="t-label">Для участников Клуба</span><div class="offer__text">−12% на счёт</div><span class="t-caption" style="color:var(--ink)">Бессрочно</span></div>`]);
 C.push(['Форма', '<code>.field</code> — только нижняя линия, как на сайте; <code>.is-focus</code>, <code>.is-error</code> + <code>.field__err</code>; <code>.field-row</code> — два поля в ряд; <code>.upload</code> — фото. S15.',
   `<button class="upload" style="width:100%;height:120px">${ic('camera')}<span class="t-label">Фото машины</span></button><label class="field is-focus"><span class="field__label t-label">Марка</span><input class="field__input" value="Mercedes-Benz"></label><div class="field-row"><label class="field is-error"><span class="field__label t-label">Год выпуска</span><input class="field__input" placeholder="2001"><span class="field__err">Укажите год</span></label><label class="field"><span class="field__label t-label">Цвет</span><input class="field__input" placeholder="серебристый"></label></div>`]);
 C.push(['Переключатель', '<code>.toggle</code> + <code>.switch</code> (<code>.is-on</code>). «Показывать госномер участникам» S15.',

@@ -116,7 +116,7 @@ export function sheetPickCar({ state }, e, selected) {
     <div style="margin-top:20px"><button class="btn" data-act="confirm-register">${seatsTaken(e, state) < e.cap ? 'Записаться' : 'Встать в лист ожидания'}</button></div>`;
 }
 export const sheetNeedCar = () => `<div class="sheet__grab"></div>
-  <div class="empty" style="padding:8px 0 24px"><h2 class="t-title">Сначала — машина</h2><p class="t-caption">На мероприятия клуба записываются вместе с машиной. Добавьте её — это займёт минуту, после сохранения вернём сюда.</p></div>
+  <div class="empty" style="padding:8px 0 24px"><h2 class="t-title">Сначала — машина</h2><p class="t-caption">На мероприятия Клуба записываются вместе с машиной. Добавьте её — это займёт минуту, после сохранения вернём сюда.</p></div>
   <button class="btn" data-act="add-car-for-event">${ic('plus')}Добавить машину</button>`;
 
 export const sheetDeleteCar = (c) => `<div class="sheet__grab"></div>
@@ -125,10 +125,10 @@ export const sheetDeleteCar = (c) => `<div class="sheet__grab"></div>
   <div class="actions"><button class="link link--quiet" data-act="close-sheet">Отмена</button></div>`;
 
 // ================= Вне Telegram и загрузка (#8) =================
-export const viewOpenInTelegram = () => `<div class="screen"><div class="empty" style="padding:48px 0 24px"><h2 class="t-title">Откройте в Telegram</h2><p class="t-caption">Запись на мероприятия клуба работает внутри Telegram: так мы знаем, кто записывается.</p></div>
+export const viewOpenInTelegram = () => `<div class="screen"><div class="empty" style="padding:48px 0 24px"><h2 class="t-title">Откройте в Telegram</h2><p class="t-caption">Запись на мероприятия Клуба работает внутри Telegram: так мы знаем, кто записывается.</p></div>
   <a class="btn" href="https://t.me/wdbclub_bot" style="text-decoration:none">${ic('tg')}Открыть @wdbclub_bot</a></div>`;
 export const viewLoading = () => '<div class="screen"><div class="empty" style="padding:48px 0"><p class="t-caption">Загружаем…</p></div></div>';
-export const viewLoadError = () => `<div class="screen"><div class="empty" style="padding:48px 0 24px"><h2 class="t-title">Нет связи</h2><p class="t-caption">Не удалось загрузить данные клуба.</p></div>
+export const viewLoadError = () => `<div class="screen"><div class="empty" style="padding:48px 0 24px"><h2 class="t-title">Нет связи</h2><p class="t-caption">Не удалось загрузить данные Клуба.</p></div>
   <button class="btn" data-act="reload">Попробовать ещё раз</button></div>`;
 
 // ================= Участники (S9, S10) =================
@@ -158,9 +158,9 @@ export function viewParticipants({ state, today, me }, id) {
 
 // ================= Партнёр (S11) =================
 export function viewPartner(_, p) {
-  return `<div class="screen"><div style="display:flex;gap:16px;align-items:center;margin-top:8px"><span class="partner-mark">${esc(p.mark)}</span><span><span class="rubric">Партнёр клуба с ${p.since}</span><h1 class="t-title" style="margin-top:6px">${esc(p.name)}</h1></span></div>
+  return `<div class="screen"><div style="display:flex;gap:16px;align-items:center;margin-top:8px"><span class="partner-mark">${esc(p.mark)}</span><span><span class="rubric">Партнёр Клуба с ${p.since}</span><h1 class="t-title" style="margin-top:6px">${esc(p.name)}</h1></span></div>
     <p class="t-lede" style="margin-top:16px">${esc(p.about)}</p>
-    <div class="offer"><span class="t-label">Для участников клуба</span><div class="offer__text">${esc(p.offer)}</div><span class="t-caption" style="color:var(--ink)">${esc(p.until)}</span></div>
+    <div class="offer"><span class="t-label">Для участников Клуба</span><div class="offer__text">${esc(p.offer)}</div><span class="t-caption" style="color:var(--ink)">${esc(p.until)}</span></div>
     <div class="facts">
       <a class="fact" style="text-decoration:none" href="https://yandex.ru/maps/?text=${encodeURIComponent('Москва, ' + p.addr)}" target="_blank" rel="noopener">${ic('pin')}<span class="t-label">Адрес</span><span class="fact__v">${esc(p.addr)}</span></a>
       <a class="fact" style="text-decoration:none" href="tel:${esc(p.tel.replace(/[^+\d]/g, ''))}">${ic('phone')}<span class="t-label">Телефон</span><span class="fact__v">${esc(p.tel)}</span></a>
