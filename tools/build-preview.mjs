@@ -51,7 +51,7 @@ const IMG_DECL = 'const IMG = n => `img/${n}.jpg`;';
 if (!screensSrc.includes(IMG_DECL)) throw new Error('В screens.js изменилось объявление IMG — обновите build-preview.mjs');
 const screensJs = `window.__IMG = ${JSON.stringify(imgs)};\n(function () {\n${screensSrc.replace(IMG_DECL, 'const IMG = n => window.__IMG[n];')}\n})();`;
 
-const html = `<title>WDB Club · макеты</title>
+const html = `<title>WDB CLUB · макеты</title>
 <style>
 ${fontsCss}
 ${tokensCss}
@@ -69,7 +69,7 @@ ${views.map(([id, , p]) => scope(p.style, 'v-' + id)).join('\n')}
 #v-ds { background: var(--bg); }
 </style>
 ${sprite}
-<nav class="pv-nav"><b>WDB Club</b>${views.map(([id, t]) => `<a href="#${id}">${t}</a>`).join('')}</nav>
+<nav class="pv-nav"><b>WDB CLUB</b>${views.map(([id, t]) => `<a href="#${id}">${t}</a>`).join('')}</nav>
 ${views.map(([id, , p]) => `<section id="v-${id}" class="${p.bodyClass}" hidden>${fixRefs(p.markup)}</section>`).join('\n')}
 <script>
 ${fixRefs(screensJs)}

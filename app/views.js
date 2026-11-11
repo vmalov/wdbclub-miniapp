@@ -53,7 +53,7 @@ export function viewEvents({ state, today }) {
     <button class="cover" style="display:block;width:100%;margin-bottom:0${e.cover ? `;background-image:url('${esc(img(e.cover))}')` : ''}" data-act="open-event" data-id="${e.id}" aria-label="${esc(e.name)}"></button>
     ${evRow(e, `${dayLabel(e)} · ${e.place}`, null, 'events')}
     <div style="margin-top:var(--sp-16)">${ctaFor(e, state, today, true)}</div></div>`).join('');
-  return `<div class="screen"><span class="rubric">WDB Club · сезон ${today.getFullYear()}</span><h1 class="t-display" style="margin:10px 0 24px">Мероприятия</h1>
+  return `<div class="screen"><span class="rubric">WDB CLUB · сезон ${today.getFullYear()}</span><h1 class="t-display" style="margin:10px 0 24px">Мероприятия</h1>
     ${cards || '<div class="empty"><h2 class="t-title">Скоро анонс</h2><p class="t-caption">Новые мероприятия появятся здесь.</p></div>'}
   </div>`;
 }
@@ -205,7 +205,7 @@ export function viewCar({ state, me }, id) {
       <div class="spec">${ic('drop')}<span class="t-label">Цвет</span><span class="spec__v">${esc(c.color || '—')}</span></div>
       <div class="spec">${ic('plate')}<span class="t-label">Госномер</span><span class="spec__v">${plate(c.plate) || '—'}</span></div>
     </div>
-    <div class="car-card__foot"><span class="t-label">WDB Club</span><span class="t-label">№ ${k} из ${state.cars.length}</span></div>
+    <div class="car-card__foot"><span class="t-label">WDB CLUB</span><span class="t-label">№ ${k} из ${state.cars.length}</span></div>
   </div></div>
   <div class="actions"><button class="link" data-act="edit-car" data-id="${c.id}">Изменить</button><button class="link link--quiet" data-act="delete-car" data-id="${c.id}">Удалить</button></div></div>`;
 }

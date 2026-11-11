@@ -1,6 +1,6 @@
 # wdbclub-miniapp — контекст проекта
 
-Telegram-мини-апп клуба WDB Club (клуб владельцев Mercedes-Benz,
+Telegram-мини-апп клуба WDB CLUB (клуб Mercedes-Benz №1 в России,
 https://wdbclub.com/). Без сборки: `index.html` + ES-модули `app/`
 (`logic.js` — правила, `views.js` — экраны, `main.js` — навигация и
 Telegram, `api.js` — клиент API). Правила записи — `docs/registration.md`.
