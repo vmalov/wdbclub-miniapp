@@ -35,7 +35,7 @@
 
 **Фронт и API на одном домене:** `https://wdb-club.ru/` отдаёт приложение
 (файлы из репозитория), `https://wdb-club.ru/api/…` — API. Один origin — без
-CORS. Кнопка «Клуб» в @BotFather переключается на `https://wdb-club.ru/`.
+CORS. Кнопка «Клуб» в @BotFather — `https://wdb-club.ru/` (с 11.11.2026); основное мини-приложение бота (Configure Mini App) — тот же адрес, прямые ссылки на события — `t.me/wdbclub_bot?startapp=<id>` (#16).
 GitHub Pages остаётся как есть (прототип для показа, данные в браузере) —
 до решения владельца.
 
