@@ -107,7 +107,7 @@ S.push(['Запись на мероприятие', 'S4', 'Выбор машин
   ${carOpt('E 55 AMG', 'Mercedes-Benz · 2001 · серебристый', 'car-w210', true)}${carOpt('AMG GT C Roadster', 'Mercedes-AMG · 2019 · жёлтый', 'car-amg-gt', false)}
   <div style="margin-top:20px"><button class="btn">Записаться</button></div></div></div>` })]);
 S.push(['Запись на мероприятие', 'S5', 'Записаться без машины', 'Без машины записаться нельзя: шторка ведёт на добавление машины.', phone(eventScreen({ state: 'free' }), { fixed: true, overlay: `<div class="scrim"><div class="sheet"><div class="sheet__grab"></div>
-  <div class="empty" style="padding:8px 0 24px"><h2 class="t-title">Сначала — машина</h2><p class="t-caption">На мероприятия клуба записываются вместе с машиной. Добавьте её — это займёт минуту, после сохранения вернём сюда.</p></div>
+  <div class="empty" style="padding:8px 0 24px"><h2 class="t-title">Сначала — машина</h2><p class="t-caption">На мероприятия Клуба записываются вместе с машиной. Добавьте её — это займёт минуту, после сохранения вернём сюда.</p></div>
   <button class="btn">${ic('plus')}Добавить машину</button></div></div>` })]);
 S.push(['Запись на мероприятие', 'S6', 'Мероприятие · вы записаны', 'Подтверждение тостом; в кнопке — машина, на которой едет участник.', phone(eventScreen({ state: 'on', seats: 25 }), { fixed: false, overlay: `<div class="toast">${ic('check')}Вы записаны на «Ночной заезд по Москве»</div>` })]);
 S.push(['Запись на мероприятие', 'S7', 'Мероприятие · мест нет', 'Лимит набран — можно встать в лист ожидания.', phone(eventScreen({ state: 'full', seats: 40 }))]);
@@ -126,16 +126,16 @@ S.push(['Участники', 'S10', 'Участники · вы не запис
   <div class="empty" style="padding:24px 0"><h2 class="t-title">Кто едет — после записи</h2><p class="t-caption">Имена, машины и контакты участников видны тем, кто записан на мероприятие.</p></div>
   <button class="btn">Записаться</button></div>`)]);
 S.push(['Партнёр', 'S11', 'Партнёр мероприятия', 'Открывается из карточки мероприятия. Как в прототипе, без карты участника.', phone(`${appbar('Ночной заезд')}
-  <div class="screen"><div style="display:flex;gap:16px;align-items:center;margin-top:8px"><span class="partner-mark">ВЛ</span><span><span class="rubric">Партнёр клуба с 2024</span><h1 class="t-title" style="margin-top:6px">Винотека «Лоза»</h1></span></div>
-  <p class="t-lede" style="margin-top:16px">Вино и бар на Пресненской набережной. Закрытые дегустации для участников клуба.</p>
-  <div class="offer"><span class="t-label">Для участников клуба</span><div class="offer__text">−12% на счёт и закрытые дегустации</div><span class="t-caption" style="color:var(--ink)">Бессрочно</span></div>
+  <div class="screen"><div style="display:flex;gap:16px;align-items:center;margin-top:8px"><span class="partner-mark">ВЛ</span><span><span class="rubric">Партнёр Клуба с 2024</span><h1 class="t-title" style="margin-top:6px">Винотека «Лоза»</h1></span></div>
+  <p class="t-lede" style="margin-top:16px">Вино и бар на Пресненской набережной. Закрытые дегустации для участников Клуба.</p>
+  <div class="offer"><span class="t-label">Для участников Клуба</span><div class="offer__text">−12% на счёт и закрытые дегустации</div><span class="t-caption" style="color:var(--ink)">Бессрочно</span></div>
   <div class="facts">
     <button class="fact">${ic('pin')}<span class="t-label">Адрес</span><span class="fact__v">Пресненская наб., 8</span></button>
     <button class="fact">${ic('phone')}<span class="t-label">Телефон</span><span class="fact__v">+7 900 000-00-06</span></button>
     <button class="fact">${ic('globe')}<span class="t-label">Сайт</span><span class="fact__v">loza-wine.ru</span></button>
   </div></div>`)]);
 S.push(['Профиль и машины', 'S12', 'Профиль', 'Коллекция машин и записи участника.', phone(`${appbar()}
-  <div class="screen"><div class="profile-head"><span class="avatar">ИП</span><span><h1 class="t-title">Иван Петров</h1><span class="t-caption">@ivan_petrov · в клубе с 2024</span></span></div>
+  <div class="screen"><div class="profile-head"><span class="avatar">ИП</span><span><h1 class="t-title">Иван Петров</h1><span class="t-caption">@ivan_petrov · в Клубе с 2024</span></span></div>
   <div class="section-head"><h2 class="t-title">Мои машины</h2><span class="t-label" style="color:var(--ink-2)">2</span></div>
   <div class="car-strip">${carTile('E 55 AMG', 'Mercedes-Benz · 2001', 'car-w210')}${carTile('AMG GT C', 'Mercedes-AMG · 2019', 'car-amg-gt')}<button class="car-tile car-tile--add">${ic('plus')}<span class="t-label">Добавить</span></button></div>
   <div class="section-head"><h2 class="t-title">Мои записи</h2></div>
