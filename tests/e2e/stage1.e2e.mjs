@@ -59,15 +59,15 @@ async function startServer({ real = false } = {}) {
 }
 
 /** Заглушка telegram-web-app.js: initData подписан тестовым токеном, «назад» — window.__tgBack(). */
-const tgStub = (user) => `window.Telegram = { WebApp: {
-  initData: ${JSON.stringify(signInitData(user, TOKEN))}, initDataUnsafe: { user: ${JSON.stringify(user)} },
+const tgStub = (user, startParam) => `window.Telegram = { WebApp: {
+  initData: ${JSON.stringify(signInitData(user, TOKEN))}, initDataUnsafe: { user: ${JSON.stringify(user)}${startParam ? `, start_param: ${JSON.stringify(startParam)}` : ''} },
   ready() {}, expand() {}, setHeaderColor() {}, setBackgroundColor() {}, setBottomBarColor() {}, openTelegramLink() {},
   BackButton: { show() {}, hide() {}, onClick(cb) { window.__tgBack = cb; } },
   HapticFeedback: { notificationOccurred() {}, selectionChanged() {} },
 } };`;
 
 /** Открыть приложение. user: null — вне Telegram. srv — сервер (по умолчанию новый). */
-async function open({ real = false, user = ME, srv = null, cars = [] } = {}) {
+async function open({ real = false, user = ME, srv = null, cars = [], startParam = null } = {}) {
   srv = srv || await startServer({ real });
   if (user) touchUser(srv.db, user);
   for (const c of cars) saveCar(srv.db, user.id, c, { today: new Date(TODAY) });
@@ -75,7 +75,7 @@ async function open({ real = false, user = ME, srv = null, cars = [] } = {}) {
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  await page.route(/telegram\.org/, (r) => r.fulfill({ contentType: 'text/javascript', body: user ? tgStub(user) : '' }));
+  await page.route(/telegram\.org/, (r) => r.fulfill({ contentType: 'text/javascript', body: user ? tgStub(user, startParam) : '' }));
   // партнёры — из тестового набора (в приложении их нет); мероприятия всё равно приходят с сервера
   if (!real) await page.route(/\/app\/data\.js$/, async (r) => r.fulfill({ contentType: 'text/javascript', body: await readFile(path.join(root, 'tests/fixtures/data.js'), 'utf8') }));
   await page.goto(srv.base + 'index.html?today=' + TODAY);
@@ -256,6 +256,23 @@ test('кнопка записи закреплена над таб-баром и
   await shot(page, '14-03-list-registered');
   assert.deepEqual(errors, []);
   await ctx.close();
+});
+
+test('прямая ссылка ?startapp=<id>: сразу карточка события, «назад» — список; неизвестный id — список (#16)', async () => {
+  const srv = await startServer({ real: true });
+  const { page, ctx, errors } = await open({ srv, startParam: 'yellow-night' });
+  assert.equal(await view(page), 'event');
+  await page.getByText('пятница, 13 ноября').waitFor();
+  await page.locator('.dock .btn', { hasText: 'Записаться' }).waitFor();
+  await shot(page, '16-01-deeplink');
+  await back(page);
+  assert.equal(await view(page), 'events');
+  // после «назад» ссылка не срабатывает повторно при обновлении данных
+  await page.locator('main .btn', { hasText: 'Записаться' }).waitFor();
+  const other = await open({ srv, startParam: 'no-such-event' });
+  assert.equal(await view(other.page), 'events');
+  assert.deepEqual([...errors, ...other.errors], []);
+  await ctx.close(); await other.ctx.close();
 });
 
 test('общая база: второй участник видит запись первого; отмена продвигает очередь (#8)', async () => {

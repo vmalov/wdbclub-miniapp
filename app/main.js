@@ -1,6 +1,6 @@
 // Мини-апп WDB Club (#2, сервер — #8): навигация, действия, Telegram.
 // Экраны — app/views.js, правила — app/logic.js, данные — с сервера через app/api.js (docs/server.md).
-import { defaultCarId, validateCar, ics, myStatus, BRAND_DEFAULT } from './logic.js';
+import { defaultCarId, validateCar, ics, myStatus, upcoming, BRAND_DEFAULT } from './logic.js';
 import { EVENTS, PARTNERS, setEvents, img } from './data.js';
 import { makeApi } from './api.js';
 import * as V from './views.js';
@@ -16,6 +16,11 @@ let me = {
 const qToday = new URLSearchParams(location.search).get('today');
 const today = qToday ? new Date(qToday + 'T12:00:00') : new Date();
 const api = tg ? makeApi(tg.initData, { today: qToday }) : null;
+
+// Прямая ссылка на событие t.me/wdbclub_bot?startapp=<id> (#16): Telegram передаёт id как start_param
+// (запасной путь — tgWebAppStartParam в адресе). Срабатывает один раз, при первой загрузке.
+const launchParams = new URLSearchParams(location.hash.slice(1) + '&' + location.search.slice(1));
+let startParam = tg?.initDataUnsafe?.start_param || launchParams.get('tgWebAppStartParam') || null;
 
 let state = { cars: [], regs: {}, lastCarId: null, organizer: false };
 let phase = tg ? 'loading' : 'no-tg'; // loading | ready | error | no-tg
@@ -56,7 +61,11 @@ async function boot() {
   const r = await api.state();
   if (r.error === 'unauthorized') phase = 'no-tg';
   else if (r.error) phase = 'error';
-  else { apply(r); phase = 'ready'; }
+  else {
+    apply(r); phase = 'ready';
+    // событие из прямой ссылки — сразу его карточка, «назад» — список; неизвестное или прошедшее — список
+    if (startParam) { const e = upcoming(EVENTS, today).find((x) => x.id === startParam); if (e) stack = [['events'], ['event', e.id]]; startParam = null; }
+  }
   render(true);
 }
 const haptic = (kind) => { try { kind ? tg?.HapticFeedback?.notificationOccurred(kind) : tg?.HapticFeedback?.selectionChanged(); } catch { /* вне Telegram */ } };
