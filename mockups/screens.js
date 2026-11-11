@@ -1,4 +1,4 @@
-// Экраны первого этапа WDB Club — общий источник для mockups/stage-1.html и mockups/flows.html.
+// Экраны первого этапа WDB CLUB — общий источник для mockups/stage-1.html и mockups/flows.html.
 // Собраны только из компонентов дизайн-системы (ds/components.css).
 // ---------- данные-заглушки ----------
 const IMG = n => `img/${n}.jpg`;
@@ -6,7 +6,7 @@ const ic = (n, cls = 'icon') => `<svg class="${cls}"><use href="../ds/icons.svg#
 const plate = (n, r) => `<span class="plate"><span class="plate__n">${n}</span><span class="plate__r">${r}</span></span>`;
 
 // ---------- каркас ----------
-const appbar = back => `<div class="appbar">${back ? `<button class="appbar__back">${ic('left')}${back}</button>` : '<span></span>'}<span class="logo-tile" aria-label="WDB Club"></span></div>`;
+const appbar = back => `<div class="appbar">${back ? `<button class="appbar__back">${ic('left')}${back}</button>` : '<span></span>'}<span class="logo-tile" aria-label="WDB CLUB"></span></div>`;
 const tabbar = on => `<nav class="tabbar">
   <button class="tab ${on === 'ev' ? 'is-on' : ''}">${ic('cal')}Мероприятия</button>
   <button class="tab ${on === 'me' ? 'is-on' : ''}">${ic('user')}Профиль</button></nav>`;
@@ -77,7 +77,7 @@ const carCard = ({ owner = 'Иван Петров', brand = 'Mercedes-Benz', yea
       <div class="spec">${ic('drop')}<span class="t-label">Цвет</span><span class="spec__v">${color}</span></div>
       <div class="spec">${ic('plate')}<span class="t-label">Госномер</span><span class="spec__v">${plateHtml}</span></div>
     </div>
-    <div class="car-card__foot"><span class="t-label">WDB Club</span><span class="t-label">№ 1 из 2</span></div>
+    <div class="car-card__foot"><span class="t-label">WDB CLUB</span><span class="t-label">№ 1 из 2</span></div>
   </div></div>`;
 
 const carTile = (model, sub, photo) => `<button class="car-tile"><div class="car-tile__photo" style="background-image:url(${IMG(photo)})"></div><div class="car-tile__body"><div class="car-tile__model">${model}</div><div class="t-caption">${sub}</div></div></button>`;
@@ -88,7 +88,7 @@ const person = (name, tg, model, sub, photo, plateHtml) => `<div class="person">
 // ---------- экраны ----------
 const S = [];
 S.push(['Мероприятия', 'S1', 'Мероприятия', 'Календарь месяца и ближайшие мероприятия. Жёлтый день — есть мероприятие, обведён — сегодня. Справа статус участника.', phone(`${appbar()}
-  <div class="screen"><span class="rubric">WDB Club · сезон 2026</span><h1 class="t-display" style="margin-top:10px">Мероприятия</h1>
+  <div class="screen"><span class="rubric">WDB CLUB · сезон 2026</span><h1 class="t-display" style="margin-top:10px">Мероприятия</h1>
   ${calendar()}
   <div class="section-head"><h2 class="t-title">Ближайшие</h2></div>
   ${evRow(14, 'ноя', 'Ночной заезд по Москве', ['Заезд', 'сб, 22:00 · КВЦ «Башня»'], TAG.on)}
@@ -96,7 +96,7 @@ S.push(['Мероприятия', 'S1', 'Мероприятия', 'Календ�
   ${evRow(27, 'ноя', 'Уход за кузовом зимой', ['Мастер-класс', 'пт, 18:00 · Детейлинг «Стар»'], TAG.full)}
   </div>`)]);
 S.push(['Мероприятия', 'S2', 'Мероприятия · выбран день', 'Тап по дню показывает мероприятия этого дня.', phone(`${appbar()}
-  <div class="screen"><span class="rubric">WDB Club · сезон 2026</span><h1 class="t-display" style="margin-top:10px">Мероприятия</h1>
+  <div class="screen"><span class="rubric">WDB CLUB · сезон 2026</span><h1 class="t-display" style="margin-top:10px">Мероприятия</h1>
   ${calendar(21)}
   <div class="section-head"><h2 class="t-title">21 ноября</h2><button class="link link--quiet">Все</button></div>
   ${evRow(21, 'ноя', 'Клубный ужин', ['Встреча', 'сб, 19:00 · Винотека «Лоза»'], TAG.wait)}

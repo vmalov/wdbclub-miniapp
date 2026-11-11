@@ -1,4 +1,4 @@
-// Мини-апп WDB Club (#2, сервер — #8): навигация, действия, Telegram.
+// Мини-апп WDB CLUB (#2, сервер — #8): навигация, действия, Telegram.
 // Экраны — app/views.js, правила — app/logic.js, данные — с сервера через app/api.js (docs/server.md).
 import { defaultCarId, validateCar, ics, myStatus, upcoming, BRAND_DEFAULT } from './logic.js';
 import { EVENTS, PARTNERS, setEvents, img } from './data.js';
@@ -86,7 +86,7 @@ function tab(t) { stack = [[t]]; form = null; render(true); haptic(); }
 
 function render(scrollTop) {
   if (phase !== 'ready') {
-    app.innerHTML = `<div class="appbar"><span></span><span class="logo-tile" role="img" aria-label="WDB Club"></span></div><main class="grow" data-view="${phase}">${phase === 'no-tg' ? V.viewOpenInTelegram() : phase === 'error' ? V.viewLoadError() : V.viewLoading()}</main>`;
+    app.innerHTML = `<div class="appbar"><span></span><span class="logo-tile" role="img" aria-label="WDB CLUB"></span></div><main class="grow" data-view="${phase}">${phase === 'no-tg' ? V.viewOpenInTelegram() : phase === 'error' ? V.viewLoadError() : V.viewLoading()}</main>`;
     if (tg) tg.BackButton.hide();
     return;
   }
@@ -103,7 +103,7 @@ function render(scrollTop) {
   const bl = backLabel();
   // кнопка записи на карточке мероприятия закреплена над таб-баром (#14)
   const dock = view === 'event' ? V.eventDock(ctx(), arg) : '';
-  app.innerHTML = `<div class="appbar">${bl && !tg ? `<button class="appbar__back" data-act="back">${V.ic('left')}${V.esc(bl)}</button>` : '<span></span>'}<span class="logo-tile" role="img" aria-label="WDB Club"></span></div>
+  app.innerHTML = `<div class="appbar">${bl && !tg ? `<button class="appbar__back" data-act="back">${V.ic('left')}${V.esc(bl)}</button>` : '<span></span>'}<span class="logo-tile" role="img" aria-label="WDB CLUB"></span></div>
     <main class="grow" data-view="${view}">${html}</main>
     <div class="dock">${dock ? `<div>${dock}</div>` : ''}<nav class="tabbar"><button class="tab${root === 'events' ? ' is-on' : ''}" data-act="tab" data-tab="events">${V.ic('cal')}Мероприятия</button><button class="tab${root === 'profile' ? ' is-on' : ''}" data-act="tab" data-tab="profile">${V.ic('user')}Профиль</button></nav></div>`;
   if (tg) stack.length > 1 ? tg.BackButton.show() : tg.BackButton.hide();
