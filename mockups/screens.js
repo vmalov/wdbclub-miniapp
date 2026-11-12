@@ -29,7 +29,8 @@ const evRow = (d, m, name, meta, tag = '') => `<button class="ev-row"><span clas
   <span class="ev-row__body"><span class="t-label">${meta[0]}</span><span class="ev-row__name">${name}</span><span class="t-caption">${meta[1]}</span></span>${tag}</button>`;
 const TAG = { on: `<span class="tag tag--on">${ic('check')}Записаны</span>`, wait: '<span class="tag tag--wait">Ожидание</span>', full: '<span class="tag tag--full">Мест нет</span>' };
 
-function eventScreen({ state, seats = 24, cap = 40 }) {
+// orgOnly (#23): у мероприятия включена настройка «список участников видит только организатор»
+function eventScreen({ state, seats = 24, cap = 40, orgOnly = false }) {
   const full = seats >= cap;
   const pct = Math.min(100, Math.round(seats / cap * 100));
   let cta = '';
@@ -38,7 +39,9 @@ function eventScreen({ state, seats = 24, cap = 40 }) {
   if (state === 'full') cta = `<button class="btn">Встать в лист ожидания</button><div class="actions"><span class="t-caption">Перед вами в очереди 2 участника</span></div>`;
   if (state === 'wait') cta = `<button class="btn btn--done">Вы в листе ожидания · 3-й</button><div class="actions"><button class="link link--quiet">Выйти из листа ожидания</button></div>`;
   const tag = { on: TAG.on, wait: TAG.wait, full: TAG.full }[state] || '';
-  const people = state === 'on' || state === 'wait'
+  const people = orgOnly
+    ? `<span class="t-caption">Список участников видит организатор</span>`
+    : state === 'on' || state === 'wait'
     ? `<button class="link">Все участники</button>`
     : `<span class="t-caption">Имена и машины — после записи</span>`;
   return `${appbar('Мероприятия')}
@@ -173,5 +176,11 @@ S.push(['Профиль и машины', 'S16', 'Добавить машину 
   <label class="field"><span class="field__label t-label">Госномер</span><input class="field__input" value="А 001 АА 777"></label>
   <button class="toggle"><span><span style="display:block">Показывать госномер участникам</span><span class="t-caption">Владелец видит номер всегда</span></span><span class="switch is-on"></span></button>
   <div style="margin-top:28px"><button class="btn">Сохранить и записаться</button></div>
+  </div>`)]);
+S.push(['Участники', 'S17', 'Мероприятие · вы записаны, список видит организатор', 'У мероприятия включена настройка «список участников видит только организатор» (#23). Места, шкала и свой статус видны; другие участники — только миниатюрами. Так же для листа ожидания и не записанных (у них — кнопка записи).', phone(eventScreen({ state: 'on', seats: 25, orgOnly: true }))]);
+S.push(['Участники', 'S18', 'Участники · список видит организатор', 'Открыт тапом по миниатюрам (S17). Имена, машины и контакты не показываются даже записанным; организатор видит полный список, как на S9. Не записанному ниже — кнопка «Записаться», как на S10.', phone(`${appbar('Ночной заезд')}
+  <div class="screen"><span class="rubric">Ночной заезд · 14 ноября</span><h1 class="t-display" style="margin:10px 0 6px">Участники</h1><p class="t-lede">25 из 40 мест</p>
+  <div class="thumbs" style="flex-wrap:wrap;gap:10px 0;padding-left:10px">${['car-sls','car-amg-gt','car-w210-black','car-w210','car-sls','car-amg-gt','car-w210','car-w210-black','car-amg-gt','car-sls','car-w210','car-w210-black'].map(p => `<span class="thumbs__i" style="width:56px;height:56px;background-image:url(${IMG(p)})"></span>`).join('')}<span class="thumbs__i" style="width:56px;height:56px">+12</span></div>
+  <div class="empty" style="padding:24px 0"><h2 class="t-title">Список видит организатор</h2><p class="t-caption">Имена и контакты участников этого мероприятия видны только организаторам Клуба.</p></div>
   </div>`)]);
 window.SCREENS = S;
