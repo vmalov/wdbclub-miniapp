@@ -1,6 +1,6 @@
 // Мини-апп WDB CLUB (#2, сервер — #8): навигация, действия, Telegram.
 // Экраны — app/views.js, правила — app/logic.js, данные — с сервера через app/api.js (docs/server.md).
-import { defaultCarId, validateCar, ics, myStatus, upcoming, BRAND_DEFAULT } from './logic.js';
+import { defaultCarId, validateCar, ics, myStatus, upcoming, peopleHidden, BRAND_DEFAULT } from './logic.js';
 import { EVENTS, PARTNERS, setEvents, img } from './data.js';
 import { makeApi } from './api.js';
 import * as V from './views.js';
@@ -41,6 +41,8 @@ function apply(s) {
   if (s.me) me = { name: s.me.name || me.name, tg: s.me.tg, photo: s.me.photo || me.photo };
   // экран удалённой машины или мероприятия, которого больше нет, — назад
   stack = stack.filter(([v, a]) => !((v === 'car' && !state.cars.some((c) => c.id === a)) || ((v === 'event' || v === 'participants') && !EVENTS.some((e) => e.id === a))));
+  // список видит только организатор (#23) — экран «Участники» остальным не открывается, остаётся карточка
+  stack = stack.filter(([v, a]) => !(v === 'participants' && peopleHidden(EVENTS.find((e) => e.id === a), state)));
   if (!stack.length) stack = [['events']];
 }
 const NET = 'Нет связи, попробуйте ещё раз';
@@ -219,7 +221,7 @@ document.addEventListener('click', (ev) => {
     case 'tab': tab(el.dataset.tab); break;
     case 'open-event': go('event', el.dataset.id); break;
     case 'open-partner': go('partner', el.dataset.id); break;
-    case 'open-people': go('participants', arg); break;
+    case 'open-people': if (!peopleHidden(EVENTS.find((e) => e.id === arg), state)) go('participants', arg); break;
     case 'register': startRegister(el.dataset.id || arg); break;
     case 'pick-car': sheet.carId = el.dataset.id; renderSheet(); haptic(); break;
     case 'confirm-register': doRegister(sheet.eventId, sheet.carId); break;

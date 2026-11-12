@@ -141,7 +141,7 @@ test('events.json: одно мероприятие — Yellow Night 13 нояб�
   const list = await loadEvents();
   assert.equal(list.length, 1);
   const e = list[0];
-  assert.deepEqual([e.id, e.name, e.type, e.date, e.time, e.cap, e.noCar], ['yellow-night', 'WDB CLUB • Yellow Night Edition', 'Встреча', '2026-11-13', '19:00', 50, true]);
+  assert.deepEqual([e.id, e.name, e.type, e.date, e.time, e.cap, e.noCar, e.peopleOrganizerOnly], ['yellow-night', 'WDB CLUB • Yellow Night Edition', 'Встреча', '2026-11-13', '19:00', 50, true, true]);
   assert.match(e.address, /Нижняя Сыромятническая/);
   assert.equal(e.others, undefined, 'выдуманных участников нет');
 });
@@ -162,6 +162,52 @@ test('мероприятие без машины: запись без машин
   user(3);
   assert.deepEqual(stateFor(db, 3).events.find((e) => e.id === 'nc').others[0], { name: '', tg: '', initials: 'БМ', car: null });
   assert.deepEqual(deleteCar(db, 2, a, TODAY), { ok: true }, 'машину можно удалить — она не в записи');
+});
+
+test('список видит только организатор: остальным — только числа (#23)', () => {
+  const OO = { ...EV, id: 'oo', cap: 2, noCar: true, peopleOrganizerOnly: true };
+  const { db, user } = setup([EV, OO]);
+  for (const id of [1, 2, 3, 4]) touchUser(db, { id, first_name: 'Участник', last_name: String(id), username: 'u' + id });
+  assert.equal(register(db, 1, 'oo', null, TODAY).status, 'on');
+  assert.equal(register(db, 2, 'oo', null, TODAY).status, 'on');
+  assert.equal(register(db, 3, 'oo', null, TODAY).status, 'wait');
+  const hidden = (e) => [e.others, e.waitOthers, e.othersCount, e.waitCount];
+  // записан, в очереди, не записан — ни имён, ни инициалов, ни фото
+  assert.deepEqual(hidden(stateFor(db, 1).events.find((e) => e.id === 'oo')), [[], [], 1, 1]);
+  const w = stateFor(db, 3).events.find((e) => e.id === 'oo');
+  assert.deepEqual(hidden(w), [[], [], 2, 0]);
+  assert.equal(w.myWaitPos, 1);
+  assert.deepEqual(hidden(stateFor(db, 4).events.find((e) => e.id === 'oo')), [[], [], 2, 1]);
+  assert.doesNotMatch(JSON.stringify(stateFor(db, 4)), /Участник [123]|@u[123]|initials/, 'в ответе нет данных других участников');
+  // организатор — полный список
+  const org = stateFor(db, 9, { organizers: [9] }).events.find((e) => e.id === 'oo');
+  assert.deepEqual(org.others.map((p) => p.tg), ['@u1', '@u2']);
+  assert.deepEqual(org.waitOthers.map((p) => p.tg), ['@u3']);
+  assert.equal(org.othersCount, undefined);
+  // настройка выключена — как раньше
+  register(db, 5, 'ev', user(5), TODAY);
+  const plain = stateFor(db, 6).events.find((e) => e.id === 'ev');
+  assert.equal(plain.peopleOrganizerOnly, false);
+  assert.equal(plain.others.length, 1);
+  assert.equal(plain.othersCount, undefined);
+});
+
+test('миграция: база без people_org_only получает столбец, настройка читается (#23)', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'wdb-'));
+  try {
+    const file = path.join(dir, 'old.db');
+    const { DatabaseSync } = await import('node:sqlite');
+    const old = new DatabaseSync(file);
+    old.exec(`CREATE TABLE events (id TEXT PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, date TEXT NOT NULL, time TEXT NOT NULL, gather TEXT, place TEXT NOT NULL DEFAULT '', address TEXT NOT NULL DEFAULT '', descr TEXT NOT NULL DEFAULT '', cap INTEGER NOT NULL, cover TEXT, partner_id TEXT, no_car INTEGER NOT NULL DEFAULT 0);
+      INSERT INTO events (id, type, name, date, time, cap) VALUES ('ev', 'Заезд', 'Тест', '2026-11-13', '10:00', 5);`);
+    old.close();
+    const db = openDb(file);
+    upsertEvents(db, [{ ...EV, id: 'ev' }, { ...EV, id: 'oo', peopleOrganizerOnly: true }]);
+    touchUser(db, { id: 1, first_name: 'Иван' });
+    const evs = stateFor(db, 1).events;
+    assert.deepEqual(evs.map((e) => [e.id, e.peopleOrganizerOnly]).sort(), [['ev', false], ['oo', true]]);
+    db.close();
+  } finally { await rm(dir, { recursive: true, force: true }); }
 });
 
 test('мероприятие убрали из events.json: без записей удаляется, с записями остаётся (#10)', () => {

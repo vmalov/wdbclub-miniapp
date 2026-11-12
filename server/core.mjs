@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS events (
   id TEXT PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, date TEXT NOT NULL, time TEXT NOT NULL, gather TEXT,
   place TEXT NOT NULL DEFAULT '', address TEXT NOT NULL DEFAULT '', descr TEXT NOT NULL DEFAULT '', cap INTEGER NOT NULL,
-  cover TEXT, partner_id TEXT, no_car INTEGER NOT NULL DEFAULT 0
+  cover TEXT, partner_id TEXT, no_car INTEGER NOT NULL DEFAULT 0, people_org_only INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS cars (
   id TEXT PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id), brand TEXT NOT NULL, model TEXT NOT NULL, year INTEGER NOT NULL,
@@ -41,6 +41,8 @@ export function openDb(file = ':memory:') {
 function migrate(db) {
   const cols = (t) => db.prepare(`PRAGMA table_info(${t})`).all();
   if (!cols('events').some((c) => c.name === 'no_car')) db.exec('ALTER TABLE events ADD COLUMN no_car INTEGER NOT NULL DEFAULT 0');
+  // #23: «список участников видит только организатор»
+  if (!cols('events').some((c) => c.name === 'people_org_only')) db.exec('ALTER TABLE events ADD COLUMN people_org_only INTEGER NOT NULL DEFAULT 0');
   if (cols('regs').find((c) => c.name === 'car_id')?.notnull) {
     db.exec('PRAGMA foreign_keys = OFF');
     tx(db, () => db.exec(`
@@ -60,7 +62,7 @@ function tx(db, fn) {
   try { const r = fn(); db.exec('COMMIT'); return r; } catch (e) { db.exec('ROLLBACK'); throw e; }
 }
 
-const eventRow = (r) => ({ id: r.id, type: r.type, name: r.name, date: r.date, time: r.time, gather: r.gather || undefined, place: r.place, address: r.address, desc: r.descr, cap: r.cap, cover: r.cover, partnerId: r.partner_id || null, noCar: !!r.no_car });
+const eventRow = (r) => ({ id: r.id, type: r.type, name: r.name, date: r.date, time: r.time, gather: r.gather || undefined, place: r.place, address: r.address, desc: r.descr, cap: r.cap, cover: r.cover, partnerId: r.partner_id || null, noCar: !!r.no_car, peopleOrganizerOnly: !!r.people_org_only });
 
 /**
  * Мероприятия из server/events.json: добавить или обновить; после — продвинуть очереди (лимит мог вырасти).
@@ -68,13 +70,13 @@ const eventRow = (r) => ({ id: r.id, type: r.type, name: r.name, date: r.date, t
  * Возвращает id оставленных мероприятий, которых нет в файле.
  */
 export function upsertEvents(db, list) {
-  const st = db.prepare(`INSERT INTO events (id, type, name, date, time, gather, place, address, descr, cap, cover, partner_id, no_car)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  const st = db.prepare(`INSERT INTO events (id, type, name, date, time, gather, place, address, descr, cap, cover, partner_id, no_car, people_org_only)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(id) DO UPDATE SET type=excluded.type, name=excluded.name, date=excluded.date, time=excluded.time, gather=excluded.gather,
       place=excluded.place, address=excluded.address, descr=excluded.descr, cap=excluded.cap, cover=excluded.cover, partner_id=excluded.partner_id,
-      no_car=excluded.no_car`);
+      no_car=excluded.no_car, people_org_only=excluded.people_org_only`);
   return tx(db, () => {
-    for (const e of list) st.run(e.id, e.type, e.name, e.date, e.time, e.gather ?? null, e.place ?? '', e.address ?? '', e.desc ?? '', e.cap, e.cover ?? null, e.partnerId ?? null, e.noCar ? 1 : 0);
+    for (const e of list) st.run(e.id, e.type, e.name, e.date, e.time, e.gather ?? null, e.place ?? '', e.address ?? '', e.desc ?? '', e.cap, e.cover ?? null, e.partnerId ?? null, e.noCar ? 1 : 0, e.peopleOrganizerOnly ? 1 : 0);
     for (const e of list) promote(db, e.id);
     const ids = new Set(list.map((e) => e.id));
     const kept = [];
@@ -122,8 +124,16 @@ export function stateFor(db, userId, { organizers = [] } = {}) {
       ? { name: r.name, tg: r.username ? '@' + r.username : '', car: car(r) }
       : { name: '', tg: '', initials: initialsOf(r.name), car: r.car_id ? { photo: r.photo } : null });
     const wait = rows.filter((r) => r.status === 'wait');
-    e.others = rows.filter((r) => r.status === 'on' && r !== mine).map(person);
-    e.waitOthers = wait.filter((r) => r !== mine).map(person);
+    const on = rows.filter((r) => r.status === 'on' && r !== mine);
+    const waitOthers = wait.filter((r) => r !== mine);
+    if (e.peopleOrganizerOnly && !organizer) {
+      // #23: список видит только организатор — остальным о других только числа
+      e.others = []; e.waitOthers = [];
+      e.othersCount = on.length; e.waitCount = waitOthers.length;
+    } else {
+      e.others = on.map(person);
+      e.waitOthers = waitOthers.map(person);
+    }
     e.myWaitPos = mine?.status === 'wait' ? wait.indexOf(mine) + 1 : null;
     return e;
   });

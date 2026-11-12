@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  upcoming, monthGrid, register, unregister, seatsTaken, waitPosition, eventState, listTag, canSeeParticipants,
+  upcoming, monthGrid, register, unregister, seatsTaken, waitPosition, eventState, listTag, canSeeParticipants, peopleHidden, queueAhead,
   defaultCarId, validateCar, splitPlate, upsertCar, ics, myRegs, plural,
 } from '../app/logic.js';
 import { EVENTS } from './fixtures/data.js'; // прежний набор мероприятий (#6)
@@ -136,6 +136,21 @@ test('очередь и организатор: место с сервера, о
   assert.equal(canSeeParticipants(st(), 'e'), false);
 });
 
+test('список видит только организатор: места и очередь по числам с сервера (#23)', () => {
+  // сервер не-организатору присылает пустые others/waitOthers и числа othersCount/waitCount
+  const e = ev({ cap: 5, peopleOrganizerOnly: true, others: [], waitOthers: [], othersCount: 4, waitCount: 0 });
+  assert.equal(seatsTaken(e, st()), 4);
+  assert.equal(seatsTaken(e, st({ regs: { e: { status: 'on', carId: null } } })), 5);
+  assert.equal(eventState(e, st(), TODAY), 'free');
+  const full = ev({ cap: 4, peopleOrganizerOnly: true, others: [], waitOthers: [], othersCount: 4, waitCount: 2 });
+  assert.equal(eventState(full, st(), TODAY), 'full');
+  assert.equal(queueAhead(full), 2);
+  assert.equal(peopleHidden(e, st()), true);
+  assert.equal(peopleHidden(e, st({ regs: { e: { status: 'on', carId: null } } })), true);
+  assert.equal(peopleHidden(e, st({ organizer: true })), false);
+  assert.equal(peopleHidden(ev(), st()), false); // настройка выключена — как раньше
+  assert.equal(seatsTaken(ev({ others: people(2) }), st()), 2); // без чисел — по списку
+});
 test('склонение', () => {
   assert.equal(plural(1, 'участник', 'участника', 'участников'), 'участник');
   assert.equal(plural(2, 'участник', 'участника', 'участников'), 'участника');

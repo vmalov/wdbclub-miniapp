@@ -11,6 +11,7 @@
     "cap": 50,
     "cover": "event-yellow-night",
     "partnerId": null,
-    "noCar": true
+    "noCar": true,
+    "peopleOrganizerOnly": true
   }
 ]

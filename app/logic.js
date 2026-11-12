@@ -39,7 +39,8 @@ export function monthGrid(year, month) {
 export const myStatus = (state, eventId) => state.regs[eventId]?.status ?? null;
 
 /** Занято мест = вымышленные участники + я, если записан. */
-export const seatsTaken = (event, state) => event.others.length + (myStatus(state, event.id) === 'on' ? 1 : 0);
+// список скрыт (#23) — сервер присылает число других записанных в othersCount
+export const seatsTaken = (event, state) => (event.othersCount ?? event.others.length) +(myStatus(state, event.id) === 'on' ? 1 : 0);
 
 /** Места есть (для меня, если я ещё не записан). */
 export const hasSeats = (event, state) => seatsTaken(event, state) < event.cap;
@@ -48,7 +49,7 @@ export const hasSeats = (event, state) => seatsTaken(event, state) < event.cap;
 export const waitPosition = (event, state) => (myStatus(state, event.id) === 'wait' ? event.myWaitPos ?? (event.waitOthers?.length ?? 0) + 1 : null);
 
 /** Сколько людей в очереди передо мной, если встану сейчас. */
-export const queueAhead = (event) => event.waitOthers?.length ?? 0;
+export const queueAhead = (event) => event.waitCount ?? event.waitOthers?.length ?? 0;
 
 /** Что показывать на кнопке: 'past' | 'on' | 'wait' | 'free' | 'full'. */
 export function eventState(event, state, today) {
@@ -94,6 +95,9 @@ export function unregister(state, eventId) {
 
 /** Видит ли участник имена и машины других: записан, в очереди или организатор (#8). */
 export const canSeeParticipants = (state, eventId) => !!state.organizer || myStatus(state, eventId) !== null;
+
+/** Список участников видит только организатор (#23): остальным — ни миниатюр, ни списка, только места. */
+export const peopleHidden = (event, state) => !!event.peopleOrganizerOnly && !state.organizer;
 
 /** Мои записи на будущие мероприятия, ближайшие первыми. */
 export function myRegs(events, state, today) {
