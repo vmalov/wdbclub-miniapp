@@ -39,9 +39,7 @@ function eventScreen({ state, seats = 24, cap = 40, orgOnly = false }) {
   if (state === 'full') cta = `<button class="btn">Встать в лист ожидания</button><div class="actions"><span class="t-caption">Перед вами в очереди 2 участника</span></div>`;
   if (state === 'wait') cta = `<button class="btn btn--done">Вы в листе ожидания · 3-й</button><div class="actions"><button class="link link--quiet">Выйти из листа ожидания</button></div>`;
   const tag = { on: TAG.on, wait: TAG.wait, full: TAG.full }[state] || '';
-  const people = orgOnly
-    ? `<span class="t-caption">Список участников видит организатор</span>`
-    : state === 'on' || state === 'wait'
+  const people = state === 'on' || state === 'wait'
     ? `<button class="link">Все участники</button>`
     : `<span class="t-caption">Имена и машины — после записи</span>`;
   return `${appbar('Мероприятия')}
@@ -58,10 +56,10 @@ function eventScreen({ state, seats = 24, cap = 40, orgOnly = false }) {
       </div>
       <div class="seats"><span><span class="t-num">${seats}</span> <span class="t-caption">из ${cap} мест</span></span>${full ? '<span class="t-label">Мест нет</span>' : `<span class="t-caption">осталось ${cap - seats}</span>`}</div>
       <div class="meter ${full ? 'meter--full' : ''}"><div class="meter__fill" style="width:${pct}%"></div></div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
+      ${orgOnly ? '' : `<div style="display:flex;justify-content:space-between;align-items:center">
         <div class="thumbs"><span class="thumbs__i" style="background-image:url(${IMG('car-sls')})"></span><span class="thumbs__i" style="background-image:url(${IMG('car-amg-gt')})"></span><span class="thumbs__i" style="background-image:url(${IMG('car-w210-black')})"></span><span class="thumbs__i" style="background-image:url(${IMG('car-w210')})"></span><span class="thumbs__i">+${seats - 4}</span></div>
         ${people}
-      </div>
+      </div>`}
       ${cta}
     </div>`;
 }
@@ -177,10 +175,5 @@ S.push(['Профиль и машины', 'S16', 'Добавить машину 
   <button class="toggle"><span><span style="display:block">Показывать госномер участникам</span><span class="t-caption">Владелец видит номер всегда</span></span><span class="switch is-on"></span></button>
   <div style="margin-top:28px"><button class="btn">Сохранить и записаться</button></div>
   </div>`)]);
-S.push(['Участники', 'S17', 'Мероприятие · вы записаны, список видит организатор', 'У мероприятия включена настройка «список участников видит только организатор» (#23). Места, шкала и свой статус видны; другие участники — только миниатюрами. Так же для листа ожидания и не записанных (у них — кнопка записи).', phone(eventScreen({ state: 'on', seats: 25, orgOnly: true }))]);
-S.push(['Участники', 'S18', 'Участники · список видит организатор', 'Открыт тапом по миниатюрам (S17). Имена, машины и контакты не показываются даже записанным; организатор видит полный список, как на S9. Не записанному ниже — кнопка «Записаться», как на S10.', phone(`${appbar('Ночной заезд')}
-  <div class="screen"><span class="rubric">Ночной заезд · 14 ноября</span><h1 class="t-display" style="margin:10px 0 6px">Участники</h1><p class="t-lede">25 из 40 мест</p>
-  <div class="thumbs" style="flex-wrap:wrap;gap:10px 0;padding-left:10px">${['car-sls','car-amg-gt','car-w210-black','car-w210','car-sls','car-amg-gt','car-w210','car-w210-black','car-amg-gt','car-sls','car-w210','car-w210-black'].map(p => `<span class="thumbs__i" style="width:56px;height:56px;background-image:url(${IMG(p)})"></span>`).join('')}<span class="thumbs__i" style="width:56px;height:56px">+12</span></div>
-  <div class="empty" style="padding:24px 0"><h2 class="t-title">Список видит организатор</h2><p class="t-caption">Имена и контакты участников этого мероприятия видны только организаторам Клуба.</p></div>
-  </div>`)]);
+S.push(['Запись на мероприятие', 'S17', 'Мероприятие · список видит организатор', 'У мероприятия включена настройка «список участников видит только организатор» (#23). Видны только места и шкала: миниатюр, «Все участники» и экрана «Участники» нет — так для записанных, листа ожидания и не записанных. Организатор видит карточку как обычно (S6) и полный список (S9).', phone(eventScreen({ state: 'on', seats: 25, orgOnly: true }))]);
 window.SCREENS = S;
