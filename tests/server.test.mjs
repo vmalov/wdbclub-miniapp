@@ -137,11 +137,11 @@ test('машину из записи на прошедшее мероприят�
 });
 
 // ---------- данные и HTTP ----------
-test('events.json: одно мероприятие — Yellow Night 13 ноября, 19:00, 50 мест, без машины (#10)', async () => {
+test('events.json: одно мероприятие — Yellow Night 13 ноября, 19:00, 20 мест, без машины (#10)', async () => {
   const list = await loadEvents();
   assert.equal(list.length, 1);
   const e = list[0];
-  assert.deepEqual([e.id, e.name, e.type, e.date, e.time, e.cap, e.noCar, e.peopleOrganizerOnly], ['yellow-night', 'WDB CLUB • Yellow Night Edition', 'Встреча', '2026-11-13', '19:00', 50, true, true]);
+  assert.deepEqual([e.id, e.name, e.type, e.date, e.time, e.cap, e.noCar, e.peopleOrganizerOnly], ['yellow-night', 'WDB CLUB • Yellow Night Edition', 'Встреча', '2026-11-13', '19:00', 20, true, true]);
   assert.match(e.address, /Нижняя Сыромятническая/);
   assert.equal(e.others, undefined, 'выдуманных участников нет');
 });
