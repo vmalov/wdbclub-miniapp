@@ -48,11 +48,11 @@ function seedFixtures(db) {
 }
 
 /** Свой сервер: real — мероприятия из server/events.json, иначе тестовый набор с участниками. */
-async function startServer({ real = false } = {}) {
+async function startServer({ real = false, organizers = [] } = {}) {
   const dataDir = await mkdtemp(path.join(tmpdir(), 'wdb-e2e-'));
   const db = openDb();
   if (real) upsertEvents(db, await loadEvents()); else seedFixtures(db);
-  const server = createServer({ db, botToken: TOKEN, dataDir, staticRoot: root, allowToday: true, log: { error: (e) => console.error(e) } });
+  const server = createServer({ db, botToken: TOKEN, organizers, dataDir, staticRoot: root, allowToday: true, log: { error: (e) => console.error(e) } });
   await new Promise((ok) => server.listen(0, '127.0.0.1', ok));
   cleanup.push(async () => { server.close(); db.close(); await rm(dataDir, { recursive: true, force: true }); });
   return { db, base: `http://127.0.0.1:${server.address().port}/` };
@@ -203,8 +203,10 @@ test('список: без календаря, карточки с картин�
   await ctx.close();
 });
 
-test('данные приложения: Yellow Night 13 ноября — запись без машины одним нажатием (#6, #8, #10)', async () => {
+test('мероприятие без машины: запись одним нажатием, в списке — без машин (#10)', async () => {
   const srv = await startServer({ real: true });
+  // список открыт всем записанным — настройка #23 выключена, чтобы проверить сам список без машин
+  upsertEvents(srv.db, [{ ...(await loadEvents())[0], peopleOrganizerOnly: false }]);
   const anna = { id: 201, first_name: 'Анна', last_name: 'Кузнецова', username: 'anna_k' };
   touchUser(srv.db, anna);
   const { page, ctx, errors } = await open({ srv }); // новичок: машин нет
@@ -235,6 +237,42 @@ test('данные приложения: Yellow Night 13 ноября — зап
   await a.page.locator('.ev-row', { hasText: 'Yellow Night' }).locator('.tag--on').waitFor();
   assert.deepEqual([...errors, ...a.errors], []);
   await ctx.close(); await a.ctx.close();
+});
+
+test('Yellow Night: список видит только организатор — участникам только места (#23)', async () => {
+  const ORG = { id: 300, first_name: 'Владимир', last_name: 'Орг', username: 'org' };
+  const srv = await startServer({ real: true, organizers: [ORG.id] });
+  const anna = { id: 201, first_name: 'Анна', last_name: 'Кузнецова', username: 'anna_k' };
+  touchUser(srv.db, anna);
+  // Анна записана; Иван не записан — видит места и шкалу, без миниатюр и подписи
+  const a = await open({ srv, user: anna });
+  await a.page.locator('.ev-row', { hasText: 'Yellow Night' }).click();
+  await a.page.getByRole('button', { name: 'Записаться' }).click();
+  await a.page.locator('.btn--done', { hasText: 'Вы записаны' }).waitFor();
+  const { page, ctx, errors } = await open({ srv });
+  await page.locator('.ev-row', { hasText: 'Yellow Night' }).click();
+  assert.match(await page.locator('.seats').innerText(), /1\s+из 50 мест/);
+  await page.locator('.meter').waitFor();
+  assert.equal(await page.locator('main .thumbs').count(), 0, 'миниатюр нет');
+  assert.equal(await page.getByText('после записи').count(), 0, 'подписи нет');
+  // Иван записывается — по-прежнему только места: ни «Все участники», ни миниатюр, ни имени Анны
+  await page.getByRole('button', { name: 'Записаться' }).click();
+  await page.locator('.btn--done', { hasText: 'Вы записаны' }).waitFor();
+  assert.match(await page.locator('.seats').innerText(), /2\s+из 50 мест/);
+  assert.equal(await page.getByRole('button', { name: 'Все участники' }).count(), 0);
+  assert.equal(await page.locator('main .thumbs').count(), 0);
+  assert.equal(await page.getByText('Анна').count(), 0);
+  await shot(page, '23-01-registered-progress-only');
+  // организатор видит полный список
+  const o = await open({ srv, user: ORG });
+  await o.page.locator('.ev-row', { hasText: 'Yellow Night' }).click();
+  await o.page.getByRole('button', { name: 'Все участники' }).click();
+  assert.equal(await view(o.page), 'participants');
+  await o.page.locator('.person', { hasText: 'Анна Кузнецова' }).locator('a.link', { hasText: '@anna_k' }).waitFor();
+  await o.page.locator('.person', { hasText: 'Иван Петров' }).waitFor();
+  await shot(o.page, '23-02-organizer-list');
+  assert.deepEqual([...errors, ...a.errors, ...o.errors], []);
+  await ctx.close(); await a.ctx.close(); await o.ctx.close();
 });
 
 test('кнопка записи закреплена над таб-баром и видна без прокрутки; запись прямо из списка (#14)', async () => {

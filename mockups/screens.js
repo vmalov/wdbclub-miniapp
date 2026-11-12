@@ -29,7 +29,8 @@ const evRow = (d, m, name, meta, tag = '') => `<button class="ev-row"><span clas
   <span class="ev-row__body"><span class="t-label">${meta[0]}</span><span class="ev-row__name">${name}</span><span class="t-caption">${meta[1]}</span></span>${tag}</button>`;
 const TAG = { on: `<span class="tag tag--on">${ic('check')}Записаны</span>`, wait: '<span class="tag tag--wait">Ожидание</span>', full: '<span class="tag tag--full">Мест нет</span>' };
 
-function eventScreen({ state, seats = 24, cap = 40 }) {
+// orgOnly (#23): у мероприятия включена настройка «список участников видит только организатор»
+function eventScreen({ state, seats = 24, cap = 40, orgOnly = false }) {
   const full = seats >= cap;
   const pct = Math.min(100, Math.round(seats / cap * 100));
   let cta = '';
@@ -55,10 +56,10 @@ function eventScreen({ state, seats = 24, cap = 40 }) {
       </div>
       <div class="seats"><span><span class="t-num">${seats}</span> <span class="t-caption">из ${cap} мест</span></span>${full ? '<span class="t-label">Мест нет</span>' : `<span class="t-caption">осталось ${cap - seats}</span>`}</div>
       <div class="meter ${full ? 'meter--full' : ''}"><div class="meter__fill" style="width:${pct}%"></div></div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
+      ${orgOnly ? '' : `<div style="display:flex;justify-content:space-between;align-items:center">
         <div class="thumbs"><span class="thumbs__i" style="background-image:url(${IMG('car-sls')})"></span><span class="thumbs__i" style="background-image:url(${IMG('car-amg-gt')})"></span><span class="thumbs__i" style="background-image:url(${IMG('car-w210-black')})"></span><span class="thumbs__i" style="background-image:url(${IMG('car-w210')})"></span><span class="thumbs__i">+${seats - 4}</span></div>
         ${people}
-      </div>
+      </div>`}
       ${cta}
     </div>`;
 }
@@ -174,4 +175,5 @@ S.push(['Профиль и машины', 'S16', 'Добавить машину 
   <button class="toggle"><span><span style="display:block">Показывать госномер участникам</span><span class="t-caption">Владелец видит номер всегда</span></span><span class="switch is-on"></span></button>
   <div style="margin-top:28px"><button class="btn">Сохранить и записаться</button></div>
   </div>`)]);
+S.push(['Запись на мероприятие', 'S17', 'Мероприятие · список видит организатор', 'У мероприятия включена настройка «список участников видит только организатор» (#23). Видны только места и шкала: миниатюр, «Все участники» и экрана «Участники» нет — так для записанных, листа ожидания и не записанных. Организатор видит карточку как обычно (S6) и полный список (S9).', phone(eventScreen({ state: 'on', seats: 25, orgOnly: true }))]);
 window.SCREENS = S;

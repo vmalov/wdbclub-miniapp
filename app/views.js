@@ -3,7 +3,7 @@
 // Действия — атрибуты data-act (обрабатывает app/main.js).
 import {
   MONTHS, MONTHS_GEN, MONTHS_SHORT, WD_SHORT, WEEKDAYS, parseDate, upcoming, isPast,
-  myStatus, seatsTaken, waitPosition, queueAhead, eventState, listTag, canSeeParticipants, myRegs, splitPlate, plural, initials, BRAND_DEFAULT,
+  myStatus, seatsTaken, waitPosition, queueAhead, eventState, listTag, canSeeParticipants, peopleHidden, myRegs, splitPlate, plural, initials, BRAND_DEFAULT,
 } from './logic.js';
 import { EVENTS, partnerOf, img } from './data.js';
 
@@ -100,10 +100,10 @@ export function viewEvent({ state, today }, id) {
       </div>
       <div class="seats"><span><span class="t-num">${taken}</span> <span class="t-caption">из ${e.cap} мест</span></span>${full ? '<span class="t-label">Мест нет</span>' : `<span class="t-caption">осталось ${e.cap - taken}</span>`}</div>
       <div class="meter${full ? ' meter--full' : ''}"><div class="meter__fill" style="width:${Math.min(100, Math.round((taken / e.cap) * 100))}%"></div></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+      ${peopleHidden(e, state) ? '' /* #23, S17: список видит только организатор — только места и шкала */ : `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
         <button class="thumbs" data-act="open-people" aria-label="Участники">${thumbs}${rest > 0 ? `<span class="thumbs__i">+${rest}</span>` : ''}</button>
         ${seeAll ? '<button class="link" data-act="open-people">Все участники</button>' : `<span class="t-caption">${e.noCar ? 'Кто идёт — после записи' : 'Имена и машины — после записи'}</span>`}
-      </div>
+      </div>`}
       ${cta}
     </div>`;
 }
