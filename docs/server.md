@@ -68,7 +68,7 @@ GitHub Pages остаётся как есть (прототип для пока�
 | `prefs` | `user_id`, `last_car_id` |
 
 Мероприятия заводятся из `server/events.json` при старте (upsert по `id`).
-С #10 — Yellow Night 13.11, `cap` 50, `noCar: true` (запись без машины,
+С #10 — Yellow Night 13.11, `cap` 20, `noCar: true` (запись без машины,
 `regs.car_id` может быть `NULL`; база прежней схемы мигрирует при старте).
 С #23 — поле `peopleOrganizerOnly: true` («список участников видит только
 организатор», столбец `events.people_org_only`, по умолчанию 0; база

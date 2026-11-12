@@ -215,13 +215,13 @@ test('мероприятие без машины: запись одним наж
   await page.locator('.ev-row', { hasText: 'Yellow Night' }).click();
   await page.getByText('пятница, 13 ноября').waitFor();
   await page.locator('.fact', { hasText: 'Нижняя Сыромятническая' }).waitFor();
-  assert.match(await page.locator('.seats').innerText(), /0\s+из 50 мест/);
+  assert.match(await page.locator('.seats').innerText(), /0\s+из 20 мест/);
   await page.getByText('Кто идёт — после записи').waitFor();
   await shot(page, '10-01-yellow-night');
   await page.getByRole('button', { name: 'Записаться' }).click();
   await page.locator('.btn--done', { hasText: 'Вы записаны' }).waitFor();
   assert.equal(await page.locator('.sheet').count(), 0, 'без шторки «Сначала — машина»');
-  assert.match(await page.locator('.seats').innerText(), /1\s+из 50 мест/);
+  assert.match(await page.locator('.seats').innerText(), /1\s+из 20 мест/);
   await page.getByRole('button', { name: 'Все участники' }).click();
   await page.locator('.person', { hasText: 'Иван Петров · вы' }).locator('.avatar', { hasText: 'ИП' }).waitFor();
   await shot(page, '10-02-participants');
@@ -251,14 +251,14 @@ test('Yellow Night: список видит только организатор 
   await a.page.locator('.btn--done', { hasText: 'Вы записаны' }).waitFor();
   const { page, ctx, errors } = await open({ srv });
   await page.locator('.ev-row', { hasText: 'Yellow Night' }).click();
-  assert.match(await page.locator('.seats').innerText(), /1\s+из 50 мест/);
+  assert.match(await page.locator('.seats').innerText(), /1\s+из 20 мест/);
   await page.locator('.meter').waitFor();
   assert.equal(await page.locator('main .thumbs').count(), 0, 'миниатюр нет');
   assert.equal(await page.getByText('после записи').count(), 0, 'подписи нет');
   // Иван записывается — по-прежнему только места: ни «Все участники», ни миниатюр, ни имени Анны
   await page.getByRole('button', { name: 'Записаться' }).click();
   await page.locator('.btn--done', { hasText: 'Вы записаны' }).waitFor();
-  assert.match(await page.locator('.seats').innerText(), /2\s+из 50 мест/);
+  assert.match(await page.locator('.seats').innerText(), /2\s+из 20 мест/);
   assert.equal(await page.getByRole('button', { name: 'Все участники' }).count(), 0);
   assert.equal(await page.locator('main .thumbs').count(), 0);
   assert.equal(await page.getByText('Анна').count(), 0);
